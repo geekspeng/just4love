@@ -1,0 +1,16 @@
+<view class="rc" bindtap="onTap">
+  <image class="rc__avatar" src="{{user.avatar}}" mode="aspectFill" />
+  <view class="rc__body">
+    <view class="rc__name">{{user.nickname}}</view>
+    <view class="rc__meta text-secondary">
+      <text wx:if="{{ageText}}">{{ageText}}</text>
+      <text wx:if="{{ageText && heightText}}"> · </text>
+      <text wx:if="{{heightText}}">{{heightText}}</text>
+    </view>
+    <view wx:if="{{user.tag}}" class="rc__tag">{{user.tag}}</view>
+  </view>
+  <view class="rc__actions">
+    <view class="rc__btn rc__btn--pass" catchtap="onPass">跳过</view>
+    <view class="rc__btn rc__btn--like" catchtap="onLike">心动</view>
+  </view>
+</view>

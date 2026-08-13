@@ -1,0 +1,9 @@
+.recommend__list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.recommend__empty {
+  text-align: center;
+  margin-top: 120rpx;
+}

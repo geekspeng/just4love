@@ -1,0 +1,21 @@
+<view class="container message">
+  <view class="message__list">
+    <view
+      wx:for="{{sessions}}"
+      wx:key="id"
+      class="message__item card"
+      data-id="{{item.id}}"
+      bindtap="onTapSession"
+    >
+      <image class="message__avatar" src="{{item.avatar}}" mode="aspectFill" />
+      <view class="message__body">
+        <view class="message__name">{{item.nickname}}</view>
+        <view class="message__last text-secondary">{{item.lastMessage}}</view>
+      </view>
+      <view wx:if="{{item.unread}}" class="message__badge">{{item.unread}}</view>
+    </view>
+  </view>
+  <view class="message__empty text-secondary" wx:if="{{!sessions.length}}">
+    还没有消息
+  </view>
+</view>

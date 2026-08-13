@@ -1,0 +1,57 @@
+.rc {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+.rc__avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #eeeeee;
+  flex-shrink: 0;
+}
+.rc__body {
+  flex: 1;
+  margin-left: 24rpx;
+  min-width: 0;
+}
+.rc__name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.rc__meta {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+}
+.rc__tag {
+  display: inline-block;
+  margin-top: 12rpx;
+  padding: 4rpx 16rpx;
+  font-size: 22rpx;
+  color: var(--color-primary);
+  background: rgba(255, 90, 95, 0.08);
+  border-radius: 20rpx;
+}
+.rc__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.rc__btn {
+  padding: 10rpx 28rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  text-align: center;
+}
+.rc__btn--pass {
+  color: var(--color-text-secondary);
+  background: #f2f2f2;
+}
+.rc__btn--like {
+  color: #ffffff;
+  background: var(--color-primary);
+}

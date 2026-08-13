@@ -1,0 +1,41 @@
+/* app.wxss —— 全局样式 */
+
+/* 主题色（小程序 WXSS 支持 CSS 变量，基础库 2.x+ 生效） */
+page {
+  --color-primary: #FF5A5F;
+  --color-text-primary: #222222;
+  --color-text-secondary: #999999;
+  --color-bg: #f7f7f7;
+  --radius-card: 16rpx;
+
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    Segoe UI, Arial, Roboto, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft Yahei', sans-serif;
+  font-size: 28rpx;
+}
+
+/* 通用容器 */
+.container {
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+/* 通用卡片 */
+.card {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+/* 主题色文字 */
+.text-primary {
+  color: var(--color-primary);
+}
+
+/* 次要文字 */
+.text-secondary {
+  color: var(--color-text-secondary);
+}

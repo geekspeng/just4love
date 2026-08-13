@@ -1,0 +1,14 @@
+<view class="container recommend">
+  <view class="recommend__list">
+    <recommend-card
+      wx:for="{{list}}"
+      wx:key="id"
+      user="{{item}}"
+      bind:like="onLike"
+      bind:pass="onPass"
+    />
+  </view>
+  <view class="recommend__empty text-secondary" wx:if="{{!list.length}}">
+    暂无推荐，稍后再来看看吧
+  </view>
+</view>

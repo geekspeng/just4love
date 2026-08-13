@@ -1,0 +1,8 @@
+{
+  "name": "getProfile",
+  "version": "1.0.0",
+  "description": "获取用户资料（示例云函数，骨架阶段返回 mock 数据）",
+  "main": "index.js",
+  "dependencies": {},
+  "private": true
+}

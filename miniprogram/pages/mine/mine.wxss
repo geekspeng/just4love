@@ -1,0 +1,39 @@
+.mine__profile {
+  display: flex;
+  align-items: center;
+}
+.mine__avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #eeeeee;
+  flex-shrink: 0;
+}
+.mine__info {
+  margin-left: 24rpx;
+}
+.mine__name {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+.mine__meta {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+}
+.mine__menus {
+  margin-top: 24rpx;
+  padding: 0;
+}
+.mine__menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.mine__menu:last-child {
+  border-bottom: none;
+}
+.mine__arrow {
+  font-size: 32rpx;
+}

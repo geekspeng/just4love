@@ -1,0 +1,26 @@
+{
+  "name": "just4love",
+  "version": "0.1.0",
+  "private": true,
+  "description": "just4love —— 类「牵手」相亲微信小程序（云开发）骨架",
+  "scripts": {
+    "test": "jest --config tests/jest.config.js",
+    "test:unit": "jest --config tests/jest.config.js --selectProjects unit",
+    "test:integration": "jest --config tests/jest.config.js --selectProjects integration",
+    "test:e2e": "node tests/e2e/run-e2e.js",
+    "test:coverage": "jest --config tests/jest.config.js --coverage"
+  },
+  "keywords": [
+    "wechat-miniprogram",
+    "cloud",
+    "dating",
+    "just4love"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "miniprogram-automator": "^0.12.1",
+    "miniprogram-simulate": "^1.6.2"
+  }
+}
