@@ -61,24 +61,40 @@ E2E 需要在本机运行（见下）。
 
 ## 测试说明
 
-| 层级 | 工具 | 覆盖对象 | 命令 |
-|---|---|---|---|
-| 单元测试 | Jest + miniprogram-simulate | `utils/format.js`、`utils/request.js`、`recommend-card` 组件 | `npm run test:unit` |
-| 集成测试 | Jest | `getProfile` 云函数（入参/出参契约） | `npm run test:integration` |
-| E2E | miniprogram-automator | 启动小程序 → 推荐页 → 切换 tab | `npm run test:e2e` |
+`npm test` 默认只跑单元 + 集成测试（可在 CI / 无 DevTools 环境运行）。E2E 需单独运行。
+
+| 层级 | 语言 | 工具 | 覆盖对象 | 命令 |
+|---|---|---|---|---|
+| 单元测试 | JS | Jest + miniprogram-simulate | `utils/format.js`、`utils/request.js`、`recommend-card` 组件 | `npm run test:unit` |
+| 集成测试 | JS | Jest | `getProfile` 云函数（入参/出参契约） | `npm run test:integration` |
+| E2E | TypeScript | Jest + miniprogram-automator | 启动小程序 → 推荐页 → 切换 tab → 元素断言 | `npm run test:e2e` |
+
+E2E 采用官方 `describe`/`it`/`expect` 风格，通过 `page.$('.selector')` 取元素，用 `.tagName`、`.text()`、`.tap()` 断言与交互。
 
 ### E2E 运行步骤（仅本机）
 
-E2E 需要驱动微信开发者工具，**无法在 CI / 无头环境执行**：
+E2E 需要驱动微信开发者工具，**无法在 CI / 无头环境执行**（会在连接阶段挂起）：
 
 1. 安装并登录「微信开发者工具」
 2. 设置 → 安全设置 → 开启「服务端口」
-3. 确认 `tests/e2e.config.js` 中 `cliPath`（macOS 默认为 `/Applications/wechatwebdevtools.app/Contents/MacOS/cli`）和 `port`（默认 `9420`）
+3. 确认 `tests/e2e.config.ts` 中 `cliPath`（macOS 默认为 `/Applications/wechatwebdevtools.app/Contents/MacOS/cli`）和 `port`（默认 `9420`）
 4. 运行：
 
 ```bash
 npm run test:e2e
 ```
+
+## TypeScript
+
+E2E 测试用 TypeScript 编写（`tests/e2e/*.test.ts`），由 ts-jest 转换。
+
+类型检查：
+
+```bash
+npx tsc --noEmit -p tsconfig.json
+```
+
+> 注意：当前依赖 TypeScript 5.x。TypeScript 7 尚未被 ts-jest 支持，请勿升级。
 
 ## tabBar 图标
 

@@ -4,10 +4,10 @@
   "private": true,
   "description": "just4love —— 类「牵手」相亲微信小程序（云开发）骨架",
   "scripts": {
-    "test": "jest --config tests/jest.config.js",
+    "test": "jest --config tests/jest.config.js --selectProjects unit integration",
     "test:unit": "jest --config tests/jest.config.js --selectProjects unit",
     "test:integration": "jest --config tests/jest.config.js --selectProjects integration",
-    "test:e2e": "node tests/e2e/run-e2e.js",
+    "test:e2e": "jest --config tests/jest.config.js --selectProjects e2e --runInBand",
     "test:coverage": "jest --config tests/jest.config.js --coverage"
   },
   "keywords": [
@@ -18,9 +18,12 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "miniprogram-automator": "^0.12.1",
-    "miniprogram-simulate": "^1.6.2"
+    "miniprogram-simulate": "^1.6.2",
+    "ts-jest": "^29.4.12",
+    "typescript": "^5.9.3"
   }
 }

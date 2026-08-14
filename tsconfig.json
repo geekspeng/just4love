@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["jest", "node"],
+    "lib": ["ES2019", "DOM"],
+    "noEmit": true
+  },
+  "include": ["tests/**/*.ts"],
+  "exclude": ["node_modules", "miniprogram", "cloudfunctions"]
+}
