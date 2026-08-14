@@ -28,6 +28,8 @@ module.exports = {
       rootDir: root,
       // E2E 用 TS 编写，由 ts-jest 转换
       testMatch: ['<rootDir>/tests/e2e/**/*.test.ts'],
+      // 整套 e2e 结束后退出微信开发者工具（cli quit，一次性，勿挪进各文件的 afterAll）
+      globalTeardown: '<rootDir>/tests/e2e/teardown.js',
       testEnvironment: 'node',
       // 单用例超时（launch DevTools 可能较慢）；也防止 CLI 缺失时无限等待
       testTimeout: 120000,

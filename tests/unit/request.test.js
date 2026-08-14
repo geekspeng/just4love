@@ -25,9 +25,17 @@ describe('utils/request', () => {
   });
 
   test('callFunction 抛错时返回 null（不 reject）', async () => {
+    // 静默错误日志避免 Jest 控制台噪音，同时断言确实记录了失败
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     global.wx.cloud.callFunction.mockRejectedValue(new Error('network'));
     const res = await callFunction('getProfile', {});
     expect(res).toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[request] callFunction failed:',
+      'getProfile',
+      expect.any(Error)
+    );
+    errorSpy.mockRestore();
   });
 
   test('wx.cloud 不存在时返回 null', async () => {
