@@ -29,6 +29,8 @@ module.exports = {
       // E2E 用 TS 编写，由 ts-jest 转换
       testMatch: ['<rootDir>/tests/e2e/**/*.test.ts'],
       testEnvironment: 'node',
+      // 单用例超时（launch DevTools 可能较慢）；也防止 CLI 缺失时无限等待
+      testTimeout: 120000,
       transform: {
         '^.+\\.tsx?$': [
           'ts-jest',

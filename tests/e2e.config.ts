@@ -17,6 +17,9 @@ export interface E2EConfig {
 const config: E2EConfig = {
   cliPath: '/Applications/wechatwebdevtools.app/Contents/MacOS/cli',
   projectPath: path.resolve(__dirname, '..'),
+  // 自动化端口。注意：这是 automator 的 WebSocket 端口，
+  // 与 DevTools「服务端口」（.cli 文件里的 HTTP 端口）不同。
+  // 默认 9420；若与本机其他服务冲突可改。
   port: 9420,
 };
 

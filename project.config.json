@@ -41,8 +41,8 @@
         "disableSWC": true
     },
     "compileType": "miniprogram",
-    "libVersion": "3.5.0",
-    "appid": "touristappid",
+    "libVersion": "3.17.0",
+    "appid": "wxe44e98f81ef1bee4",
     "projectname": "just4love",
     "description": "just4love 相亲小程序骨架",
     "isGameTourist": false,
