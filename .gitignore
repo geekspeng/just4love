@@ -11,6 +11,9 @@ project.private.config.json
 # 云函数依赖
 cloudfunctions/**/node_modules/
 
+# 微信开发者工具 Minitest 面板本地数据
+minitest/
+
 # 系统文件
 .DS_Store
 Thumbs.db
