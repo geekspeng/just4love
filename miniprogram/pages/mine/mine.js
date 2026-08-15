@@ -8,6 +8,7 @@ const WIRED = {
   edit: '/pages/profile-edit/profile-edit',
   album: '/pages/album-edit/album-edit',
   story: '/pages/story-edit/story-edit',
+  tags: '/pages/tags-edit/tags-edit',
 };
 
 Page({
@@ -18,6 +19,7 @@ Page({
       { id: 'edit', label: '编辑资料' },
       { id: 'album', label: '我的相册' },
       { id: 'story', label: '我的故事' },
+      { id: 'tags', label: '我的标签' },
       { id: 'settings', label: '设置' },
     ],
   },

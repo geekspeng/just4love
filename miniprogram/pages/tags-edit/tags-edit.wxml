@@ -1,0 +1,19 @@
+<view class="container tags">
+  <view class="text-secondary tags__tip">从预设池中选择，每类最多 5 个</view>
+
+  <view class="card tags__group" wx:for="{{pools}}" wx:for-item="g" wx:key="key">
+    <view class="tags__title">{{g.title}}</view>
+    <view class="tags__chips">
+      <text
+        wx:for="{{g.items}}"
+        wx:key="name"
+        class="tags__chip {{item.selected ? 'tags__chip--on' : ''}}"
+        data-group="{{g.key}}"
+        data-name="{{item.name}}"
+        bindtap="onToggle"
+      >{{item.name}}</text>
+    </view>
+  </view>
+
+  <button class="tags__save" loading="{{saving}}" disabled="{{saving}}" bindtap="onSave">保存</button>
+</view>
