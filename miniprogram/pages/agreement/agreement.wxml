@@ -1,0 +1,6 @@
+<view class="container agreement" wx:if="{{doc}}">
+  <view class="card">
+    <view class="agreement__title">{{doc.title}}</view>
+    <view class="agreement__p" wx:for="{{doc.paragraphs}}" wx:key="index">{{item}}</view>
+  </view>
+</view>

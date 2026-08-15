@@ -10,6 +10,7 @@ const WIRED = {
   story: '/pages/story-edit/story-edit',
   tags: '/pages/tags-edit/tags-edit',
   preview: '/pages/profile-preview/profile-preview',
+  settings: '/pages/settings/settings',
 };
 
 Page({

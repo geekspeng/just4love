@@ -1,0 +1,24 @@
+.settings__menus {
+  padding: 0;
+}
+.settings__menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.settings__menu:last-child {
+  border-bottom: none;
+}
+.settings__menu--danger text:first-child {
+  color: var(--color-primary);
+}
+.settings__arrow {
+  font-size: 32rpx;
+}
+.settings__ver {
+  text-align: center;
+  font-size: 24rpx;
+  margin-top: 32rpx;
+}

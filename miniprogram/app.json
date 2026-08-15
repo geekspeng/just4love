@@ -7,7 +7,9 @@
     "pages/album-edit/album-edit",
     "pages/story-edit/story-edit",
     "pages/tags-edit/tags-edit",
-    "pages/profile-preview/profile-preview"
+    "pages/profile-preview/profile-preview",
+    "pages/settings/settings",
+    "pages/agreement/agreement"
   ],
   "window": {
     "backgroundTextStyle": "light",

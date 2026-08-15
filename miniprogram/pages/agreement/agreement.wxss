@@ -1,0 +1,11 @@
+.agreement__title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+}
+.agreement__p {
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: #555555;
+  margin-bottom: 20rpx;
+}
