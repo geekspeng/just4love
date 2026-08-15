@@ -1,4 +1,11 @@
 /* profile-card —— 完整资料卡 */
+/* 卡片底板（沿用原 recommend-card 根样式，布局改为纵向堆叠） */
+.pc {
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
 .pc__head {
   display: flex;
   align-items: center;
