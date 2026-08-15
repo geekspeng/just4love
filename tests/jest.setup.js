@@ -5,6 +5,7 @@
 const cloud = {
   init: jest.fn(),
   callFunction: jest.fn(),
+  uploadFile: jest.fn(),
   database: jest.fn(() => ({
     collection: jest.fn(() => ({
       doc: jest.fn(() => ({ get: jest.fn() })),
@@ -21,8 +22,12 @@ global.wx = {
   navigateTo: jest.fn(),
   getStorageSync: jest.fn(),
   setStorageSync: jest.fn(),
+  removeStorageSync: jest.fn(),
   login: jest.fn(),
 };
 
 // 每次 setup 后可由单个测试用例覆盖 wx.cloud.callFunction 的返回值
+// auth.js 等模块使用 getApp；单测默认桩，个别用例可覆盖 global.getApp
+global.getApp = () => (global.__appStub = global.__appStub || { globalData: {} });
+
 module.exports = {};
