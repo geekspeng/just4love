@@ -1,0 +1,10 @@
+{
+  "name": "bindPhone",
+  "version": "1.0.0",
+  "description": "手机号可选绑定（getPhoneNumber code 解码）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}
