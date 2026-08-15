@@ -1,14 +1,14 @@
-// recommend-card 组件单测 —— 用 miniprogram-simulate 在 Node 下渲染组件
+// profile-card 组件单测 —— 用 miniprogram-simulate 在 Node 下渲染组件（重命名自 recommend-card）
 const simulate = require('miniprogram-simulate');
 const path = require('path');
 
-describe('components/recommend-card', () => {
+describe('components/profile-card', () => {
   let id;
 
   beforeAll(() => {
     // load 载入组件，返回组件 id；用绝对路径定位
     id = simulate.load(
-      path.resolve(__dirname, '../../miniprogram/components/recommend-card/index')
+      path.resolve(__dirname, '../../miniprogram/components/profile-card/index')
     );
   });
 

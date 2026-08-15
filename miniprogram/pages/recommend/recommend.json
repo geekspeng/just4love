@@ -2,6 +2,6 @@
   "navigationBarTitleText": "推荐",
   "enablePullDownRefresh": false,
   "usingComponents": {
-    "recommend-card": "/components/recommend-card/index"
+    "profile-card": "/components/profile-card/index"
   }
 }

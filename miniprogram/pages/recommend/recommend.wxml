@@ -1,6 +1,6 @@
 <view class="container recommend">
   <view class="recommend__list">
-    <recommend-card
+    <profile-card
       wx:for="{{list}}"
       wx:key="id"
       user="{{item}}"

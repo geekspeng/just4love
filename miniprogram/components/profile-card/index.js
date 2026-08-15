@@ -1,4 +1,4 @@
-// components/recommend-card/index.js —— 推荐卡片组件（纯展示）
+// components/profile-card/index.js —— 资料卡组件（P1 由 recommend-card 演进而来，纯展示）
 const { formatAge, formatHeight } = require('../../utils/format.js');
 
 Component({
