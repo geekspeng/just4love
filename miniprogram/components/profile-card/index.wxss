@@ -1,57 +1,93 @@
-.rc {
+/* profile-card —— 完整资料卡 */
+.pc__head {
   display: flex;
   align-items: center;
-  background: #ffffff;
-  border-radius: var(--radius-card);
-  padding: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
 }
-.rc__avatar {
+.pc__avatar {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
   background: #eeeeee;
   flex-shrink: 0;
 }
-.rc__body {
-  flex: 1;
+.pc__head-main {
   margin-left: 24rpx;
-  min-width: 0;
+  flex: 1;
 }
-.rc__name {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--color-text-primary);
+.pc__no {
+  font-size: 24rpx;
 }
-.rc__meta {
+.pc__signature {
   margin-top: 8rpx;
   font-size: 26rpx;
+  color: var(--color-text-primary);
 }
-.rc__tag {
-  display: inline-block;
-  margin-top: 12rpx;
-  padding: 4rpx 16rpx;
-  font-size: 22rpx;
-  color: var(--color-primary);
-  background: rgba(255, 90, 95, 0.08);
-  border-radius: 20rpx;
+.pc__rows {
+  margin-top: 24rpx;
+  border-top: 1rpx solid #f0f0f0;
 }
-.rc__actions {
+.pc__row {
   display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-}
-.rc__btn {
-  padding: 10rpx 28rpx;
-  border-radius: 32rpx;
+  padding: 14rpx 0;
   font-size: 26rpx;
+}
+.pc__row-label {
+  width: 150rpx;
+  flex-shrink: 0;
+}
+.pc__row-value {
+  flex: 1;
+}
+.pc__section {
+  margin-top: 24rpx;
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 20rpx;
+}
+.pc__section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.pc__section-body {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #555555;
+}
+.pc__chip-group {
+  margin-bottom: 12rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pc__chip-label {
+  font-size: 24rpx;
+  margin-right: 12rpx;
+}
+.pc__chip {
+  font-size: 24rpx;
+  background: #fff1f1;
+  color: var(--color-primary);
+  border-radius: 24rpx;
+  padding: 4rpx 18rpx;
+  margin: 0 12rpx 8rpx 0;
+}
+.pc__actions {
+  display: flex;
+  margin-top: 24rpx;
+}
+.pc__btn {
+  flex: 1;
   text-align: center;
+  padding: 18rpx 0;
+  border-radius: 40rpx;
+  font-size: 28rpx;
 }
-.rc__btn--pass {
-  color: var(--color-text-secondary);
-  background: #f2f2f2;
+.pc__btn--pass {
+  background: #f5f5f5;
+  color: #666666;
+  margin-right: 24rpx;
 }
-.rc__btn--like {
-  color: #ffffff;
+.pc__btn--like {
   background: var(--color-primary);
+  color: #ffffff;
 }

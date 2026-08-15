@@ -2,8 +2,9 @@
   <view class="recommend__list">
     <profile-card
       wx:for="{{list}}"
-      wx:key="id"
-      user="{{item}}"
+      wx:key="index"
+      profile="{{item}}"
+      show-actions
       bind:like="onLike"
       bind:pass="onPass"
     />

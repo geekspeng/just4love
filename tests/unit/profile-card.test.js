@@ -1,84 +1,90 @@
-// profile-card 组件单测 —— 用 miniprogram-simulate 在 Node 下渲染组件（重命名自 recommend-card）
+// tests/unit/profile-card.test.js —— profile-card 组件单测（完整信息区）
 const simulate = require('miniprogram-simulate');
 const path = require('path');
+
+const FULL = {
+  basic: {
+    guestNo: 'J0001', nickname: '小鱼', gender: '女', birthday: '1995-06-15',
+    constellation: '双子座', avatarFileID: 'cloud://a.jpg', signature: '认真生活',
+  },
+  about: {
+    aboutMe: '喜欢旅行和美食', aboutYou: '希望你成熟稳重', loveGoal: '先认真谈场恋爱再说',
+    emotionalStatus: '单身未婚', height: 165, education: '本科', job: '互联网/IT',
+    city: '广东省 深圳市', hometown: '湖南省 长沙市', school: '湖南大学',
+    familyBackground: ['独生子女', '父母有退休金'], smoke: '从不', drink: '偶尔', gamble: '从不',
+  },
+  tags: { hobby: ['旅行', '美食'], personality: ['开朗'], food: [], media: [] },
+  album: [],
+  stories: [],
+};
 
 describe('components/profile-card', () => {
   let id;
 
   beforeAll(() => {
-    // load 载入组件，返回组件 id；用绝对路径定位
-    id = simulate.load(
-      path.resolve(__dirname, '../../miniprogram/components/profile-card/index')
-    );
+    id = simulate.load(path.resolve(__dirname, '../../miniprogram/components/profile-card/index'));
   });
 
-  test('渲染昵称与格式化后的年龄/身高', () => {
-    const comp = simulate.render(id, {
-      user: { nickname: '小鱼', age: 1995, height: 165, tag: '喜欢旅行' },
-    });
-    const parent = document.createElement('parent-wrapper');
-    comp.attach(parent);
+  function render(props) {
+    const comp = simulate.render(id, props);
+    comp.attach(document.createElement('parent-wrapper'));
+    return comp;
+  }
 
-    const nameEl = comp.querySelector('.rc__name');
-    const metaEl = comp.querySelector('.rc__meta');
-    const tagEl = comp.querySelector('.rc__tag');
-
-    expect(nameEl.dom.textContent).toContain('小鱼');
-    // formatAge(1995) => "N岁"，formatHeight(165) => "165cm"
-    expect(metaEl.dom.textContent).toContain('165cm');
-    expect(metaEl.dom.textContent).toMatch(/\d+岁/);
-    expect(tagEl.dom.textContent).toContain('喜欢旅行');
-
+  test('头部渲染嘉宾编号、实名标识、签名', () => {
+    const comp = render({ profile: FULL, verified: false });
+    const head = comp.querySelector('.pc__head');
+    expect(head.dom.textContent).toContain('J0001');
+    expect(head.dom.textContent).toContain('未实名');
+    expect(head.dom.textContent).toContain('认真生活');
     comp.detach();
   });
 
-  test('缺少身高时只显示年龄', () => {
-    const comp = simulate.render(id, {
-      user: { nickname: '匿名', age: 1990 },
-    });
-    comp.attach(document.createElement('parent-wrapper'));
-
-    const metaEl = comp.querySelector('.rc__meta');
-    expect(metaEl.dom.textContent).toMatch(/\d+岁/);
-    expect(metaEl.dom.textContent).not.toContain('cm');
-
+  test('信息行渲染昵称(性别)·情感状态、年龄身高星座等（空值行不出现）', () => {
+    const comp = render({ profile: FULL });
+    const rows = comp.querySelector('.pc__rows');
+    const text = rows.dom.textContent;
+    expect(text).toContain('小鱼(女) · 单身未婚');
+    expect(text).toContain('165cm');
+    expect(text).toContain('双子座');
+    expect(text).toContain('广东省 深圳市');
+    expect(text).toContain('湖南大学 · 本科');
+    expect(text).toContain('偶尔喝酒');
+    expect(text).toContain('先认真谈场恋爱再说');
     comp.detach();
   });
 
-  test('点击「心动」触发 like 事件', () => {
-    const comp = simulate.render(id, {
-      user: { nickname: '测试', age: 1995, height: 170 },
-    });
-    comp.attach(document.createElement('parent-wrapper'));
+  test('关于我/希望你/标签/家庭背景区块渲染', () => {
+    const comp = render({ profile: FULL });
+    const html = comp.dom.innerHTML;
+    expect(html).toContain('关于我');
+    expect(html).toContain('喜欢旅行和美食');
+    expect(html).toContain('希望你');
+    expect(html).toContain('独生子女、父母有退休金');
+    expect(html).toContain('爱好');
+    expect(html).toContain('旅行');
+    comp.detach();
+  });
 
-    // 直接调用组件实例方法并 spy triggerEvent
+  test('稀疏资料：空区块整体隐藏，信息行无空值', () => {
+    const comp = render({ profile: { basic: { guestNo: 'J0002', nickname: '小明' }, about: {}, tags: {} } });
+    const html = comp.dom.innerHTML;
+    expect(html).not.toContain('关于我');
+    expect(html).not.toContain('我的标签');
+    expect(html).not.toContain('家庭背景');
+    const rows = comp.querySelector('.pc__rows');
+    expect(rows.dom.textContent).toContain('小明');
+    expect(rows.dom.textContent).not.toContain('undefined');
+    expect(rows.dom.textContent).not.toContain('null');
+    comp.detach();
+  });
+
+  test('showActions=true 时渲染无感/心动按钮并触发事件', () => {
+    const comp = render({ profile: FULL, showActions: true });
     const spy = jest.fn();
     comp.instance.triggerEvent = spy;
     comp.instance.onLike();
-
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith('like', {
-      user: { nickname: '测试', age: 1995, height: 170 },
-    });
-
-    comp.detach();
-  });
-
-  test('点击「跳过」触发 pass 事件', () => {
-    const comp = simulate.render(id, {
-      user: { nickname: '测试', age: 1995, height: 170 },
-    });
-    comp.attach(document.createElement('parent-wrapper'));
-
-    const spy = jest.fn();
-    comp.instance.triggerEvent = spy;
-    comp.instance.onPass();
-
-    expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith('pass', {
-      user: { nickname: '测试', age: 1995, height: 170 },
-    });
-
+    expect(spy).toHaveBeenCalledWith('like', { profile: FULL });
     comp.detach();
   });
 });

@@ -1,16 +1,46 @@
-<view class="rc" bindtap="onTap">
-  <image class="rc__avatar" src="{{user.avatar}}" mode="aspectFill" />
-  <view class="rc__body">
-    <view class="rc__name">{{user.nickname}}</view>
-    <view class="rc__meta text-secondary">
-      <text wx:if="{{ageText}}">{{ageText}}</text>
-      <text wx:if="{{ageText && heightText}}"> · </text>
-      <text wx:if="{{heightText}}">{{heightText}}</text>
+<view class="pc" bindtap="onTap">
+  <!-- 头部：编号|实名 · 头像 · 签名 -->
+  <view class="pc__head">
+    <image class="pc__avatar" src="{{profile.basic.avatarFileID}}" mode="aspectFill" />
+    <view class="pc__head-main">
+      <view class="pc__no text-secondary">{{profile.basic.guestNo || ''}} {{verified ? '· 已实名' : '· 未实名'}}</view>
+      <view wx:if="{{profile.basic.signature}}" class="pc__signature">{{profile.basic.signature}}</view>
     </view>
-    <view wx:if="{{user.tag}}" class="rc__tag">{{user.tag}}</view>
   </view>
-  <view class="rc__actions">
-    <view class="rc__btn rc__btn--pass" catchtap="onPass">跳过</view>
-    <view class="rc__btn rc__btn--like" catchtap="onLike">心动</view>
+
+  <!-- 信息行 -->
+  <view class="pc__rows" wx:if="{{infoRows.length}}">
+    <view class="pc__row" wx:for="{{infoRows}}" wx:key="label">
+      <text class="pc__row-label text-secondary">{{item.label}}</text>
+      <text class="pc__row-value">{{item.value}}</text>
+    </view>
+  </view>
+
+  <view class="pc__section" wx:if="{{profile.about.aboutMe}}">
+    <view class="pc__section-title">关于我</view>
+    <view class="pc__section-body">{{profile.about.aboutMe}}</view>
+  </view>
+
+  <view class="pc__section" wx:if="{{profile.about.aboutYou}}">
+    <view class="pc__section-title">希望你</view>
+    <view class="pc__section-body">{{profile.about.aboutYou}}</view>
+  </view>
+
+  <view class="pc__section" wx:if="{{tagGroups.length}}">
+    <view class="pc__section-title">我的标签</view>
+    <view class="pc__chip-group" wx:for="{{tagGroups}}" wx:for-item="g" wx:key="title">
+      <text class="pc__chip-label text-secondary">{{g.title}}</text>
+      <text class="pc__chip" wx:for="{{g.items}}" wx:for-item="t" wx:key="*this">{{t}}</text>
+    </view>
+  </view>
+
+  <view class="pc__section" wx:if="{{familyText}}">
+    <view class="pc__section-title">家庭背景</view>
+    <view class="pc__section-body">{{familyText}}</view>
+  </view>
+
+  <view class="pc__actions" wx:if="{{showActions}}">
+    <view class="pc__btn pc__btn--pass" catchtap="onPass">无感</view>
+    <view class="pc__btn pc__btn--like" catchtap="onLike">心动</view>
   </view>
 </view>
