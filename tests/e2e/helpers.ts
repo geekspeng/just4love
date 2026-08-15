@@ -117,5 +117,26 @@ export function runInApp<T = unknown>(mp: MiniProgram, fn: () => T): Promise<T> 
   return mp.evaluate(fn) as Promise<T>;
 }
 
+/**
+ * 页面跳转（替代 mp.navigateTo —— 本机 DevTools 2.01.2510290 上 wx.navigateTo
+ * 挂死：success/fail 均不回调，automator 的 navigateTo 随之 10s 超时报
+ * "Uncaught [object Object]"，实测 2026-08）。
+ * 改走 App 级 evaluate + wx.reLaunch：任意页面（含非 tab）可达，且不依赖页面栈，
+ * 因此测试中也不需要配对的 navigateBack——下一个断言用 navTo/switchTab 离开即可。
+ */
+export function navTo(mp: MiniProgram, url: string): Promise<void> {
+  return mp.evaluate(
+    (u: string) =>
+      new Promise<void>((resolve, reject) => {
+        wx.reLaunch({
+          url: u,
+          success: () => resolve(),
+          fail: (e) => reject(new Error((e && e.errMsg) || 'reLaunch fail')),
+        });
+      }),
+    url
+  );
+}
+
 /** 统一的单用例超时：DevTools 通信慢，jest 默认 5s 不够 */
 export const TEST_TIMEOUT = 30000;

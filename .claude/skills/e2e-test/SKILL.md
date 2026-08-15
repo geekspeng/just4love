@@ -11,7 +11,8 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
 
 **可用（App 级，全部实测通过）：**
 - `miniProgram.evaluate(fn, ...args)` — 在小程序上下文执行任意代码
-- `miniProgram.switchTab / reLaunch / navigateTo / navigateBack` — 导航
+- `miniProgram.switchTab / reLaunch` — 导航（tab 页用 switchTab）
+- `navTo(mp, url)`（helpers 提供）— 任意页面跳转：App 级 evaluate 封装 `wx.reLaunch`，**替代 navigateTo**
 - `miniProgram.pageStack / callWxMethod / systemInfo`
 
 **禁用（Page 级渲染协议，本机挂死，实测确认）：**
@@ -19,13 +20,14 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
 - `page.data() / page.setData()` — 页面数据，永不返回
 - `element.text() / element.tagName / element.tap()` — 元素操作，永不返回
 - `page.waitFor(selector)` — 内部用 `$$`，同样挂
+- `mp.navigateTo` / `wx.navigateTo` — success/fail 均不回调（2026-08-15 实测）；automator 层 10s 后报 `Uncaught [object Object]`。跳页一律 `navTo`（reLaunch 无页面栈依赖，也就**不需要配对 navigateBack**，下个断言直接 navTo/switchTab 离开）
 
 **为什么**：DevTools 2.01.2510290（内核 nwjs 91）上 `Page.getElement` 等协议不响应。`App.*` 协议正常。断言能力等价——`evaluate` 内可用完整的小程序 API（`getCurrentPages`、`wx.createSelectorQuery`）。
 
 ## 生成步骤
 
 1. **读基础设施**（勿重复造轮子）：
-   - `tests/e2e/helpers.ts` — `connectOrLaunch` / `closeSession` / 断言原语（`currentRoute` / `pageData` / `countSelector` / `runInApp`）/ `TEST_TIMEOUT`
+   - `tests/e2e/helpers.ts` — `connectOrLaunch` / `closeSession` / 断言原语（`currentRoute` / `pageData` / `countSelector` / `runInApp`）/ `navTo`（页面跳转）/ `TEST_TIMEOUT`
    - `tests/e2e/app-globals.d.ts` — `getCurrentPages`/`wx` 类型声明（自动生效）
    - `tests/e2e/app.test.ts` — 结构范例
 
@@ -59,7 +61,7 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
    - 页面数据：`const d = await pageData<T>(mp, 'list'); expect(d[0].nickname).toBe('小鱼')`
    - 元素存在性/数量：`expect(await countSelector(mp, '.some-class')).toBe(1)`（页面级选择器；**跨自定义组件边界的选择器查不到**，组件内部 class 用页面 data 断言代替）
    - 交互：`runInApp(mp, () => { page.onXxx({...}); return true })`（直接调页面方法，验证不抛错）
-   - 导航后断言：`await mp.switchTab('/pages/xxx/xxx')` 或 `await mp.reLaunch(...)`，然后走上面原语
+   - 导航后断言：tab 页用 `await mp.switchTab('/pages/xxx/xxx')`，非 tab 页用 `await navTo(mp, '/pages/xxx/xxx')`，然后走上面原语
 
 5. **每个 `it` 必须显式传 `T`（30s）**。jest 默认 5s，DevTools 通信慢必超时。（jest.config 里的 `testTimeout` 实测不生效，别依赖它）
 
@@ -74,6 +76,8 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
 - 评估回调里只能返回**可序列化**值；返回页面对象等会得到 `TypeError: received is not iterable`
 - `npm test`（unit+integration）不含 e2e；e2e 需 DevTools，独立跑 `npm run test:e2e`
 - 测试跑完会自动退出微信开发者工具：per-file 的 `closeSession` 只关自动化会话（`miniProgram.close()` 不杀 IDE 进程），整套结束由 jest globalTeardown（`tests/e2e/teardown.js` 调 `cli quit`）统一退出。**勿把 quit 挪进测试文件的 afterAll**——下一个文件的 launch 会撞上正在退出的 IDE 挂死（实测）
+- 复用 IDE 时（探针/上轮测试 disconnect 后未 quit），tabBar 页实例跨会话存活，页面 data 带旧值——依赖「data 从 null 变有值」做等待会立即误通过。需要全新状态时先 `navTo`（reLaunch）重建页面实例
+- 排障云函数：IDE 内报 `Uncaught [object Object]` 先用 App 级 evaluate 直调 `wx.cloud.callFunction` 拿真实 result（云函数 catch 兜底返回 `{error:'internal error'}` 多为集合缺失——`cloudfunctions/setupDb` 幂等建 users/counters/profiles，已部署，调一次即可）
 
 ## 模板
 

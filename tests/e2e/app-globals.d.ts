@@ -4,6 +4,8 @@
 declare function getCurrentPages(): Array<{
   route: string;
   data: Record<string, unknown>;
+  // 页面方法（onInput/onSave 等）动态定义，供测试直接驱动页面交互
+  [key: string]: any;
 }>;
 declare const wx: {
   createSelectorQuery: () => {
@@ -13,4 +15,22 @@ declare const wx: {
       };
     };
   };
+  // 真实云函数链路验证（wx.cloud.init 已在 app.js onLaunch 完成）
+  cloud: {
+    callFunction: (opt: { name: string; data?: Record<string, unknown> }) => Promise<{ result: any }>;
+  };
+  // 登录态缓存
+  getStorageSync: (key: string) => any;
+  clearStorageSync: () => void;
+  // 导航 API（本机实测 navigateTo 挂死，reLaunch/redirectTo/switchTab/navigateBack 可用）
+  reLaunch: (opt: NavOption) => void;
+  redirectTo: (opt: NavOption) => void;
+  switchTab: (opt: NavOption) => void;
+  navigateBack: (opt: NavOption) => void;
 };
+
+interface NavOption {
+  url?: string;
+  success?: () => void;
+  fail?: (e: { errMsg?: string }) => void;
+}
