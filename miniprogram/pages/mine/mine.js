@@ -2,9 +2,11 @@
 const { callFunction } = require('../../utils/request.js');
 const { ensureLogin, getCachedUser } = require('../../utils/auth.js');
 
-// 菜单入口：后续任务（14/15/16/17/18/19）逐个把 id 接通 navigateTo；
+// 菜单入口：后续任务（15/16/17/19）逐个把 id 接通 navigateTo；
 // 未接通的保持 toast 占位，避免指向不存在的页面。
-const WIRED = {};
+const WIRED = {
+  edit: '/pages/profile-edit/profile-edit',
+};
 
 Page({
   data: {
@@ -13,7 +15,6 @@ Page({
     menus: [
       { id: 'edit', label: '编辑资料' },
       { id: 'album', label: '我的相册' },
-      { id: 'vip', label: '会员中心' },
       { id: 'settings', label: '设置' },
     ],
   },

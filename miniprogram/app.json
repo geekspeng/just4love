@@ -2,7 +2,8 @@
   "pages": [
     "pages/recommend/recommend",
     "pages/message/message",
-    "pages/mine/mine"
+    "pages/mine/mine",
+    "pages/profile-edit/profile-edit"
   ],
   "window": {
     "backgroundTextStyle": "light",

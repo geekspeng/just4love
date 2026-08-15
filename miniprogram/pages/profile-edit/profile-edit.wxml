@@ -1,0 +1,200 @@
+<view class="container edit" wx:if="{{draft}}">
+  <!-- 基本资料 -->
+  <view class="card">
+    <view class="edit__title">基本资料</view>
+
+    <view class="edit__row">
+      <text class="edit__label">头像</text>
+      <button class="edit__avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image class="edit__avatar" src="{{avatarPreview}}" mode="aspectFill" />
+      </button>
+      <text class="text-secondary edit__hint">请使用本人真人照片</text>
+    </view>
+
+    <view class="edit__row">
+      <text class="edit__label">嘉宾编号</text>
+      <text class="text-secondary">{{draft.basic.guestNo || '注册后自动生成'}}</text>
+    </view>
+
+    <view class="edit__row">
+      <text class="edit__label">昵称</text>
+      <input class="edit__input" type="nickname" maxlength="20"
+             value="{{draft.basic.nickname}}" disabled="{{draft.basicInit}}"
+             bindinput="onInput" data-path="basic.nickname" placeholder="请输入昵称" />
+    </view>
+
+    <picker range="{{genders}}" disabled="{{draft.basicInit}}" bindchange="onPickGender">
+      <view class="edit__row">
+        <text class="edit__label">性别</text>
+        <text class="{{draft.basic.gender ? '' : 'text-secondary'}}">{{draft.basic.gender || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker mode="date" end="{{today}}" value="{{draft.basic.birthday}}"
+            disabled="{{draft.basicInit}}" bindchange="onPickBirthday">
+      <view class="edit__row">
+        <text class="edit__label">生日</text>
+        <text class="{{draft.basic.birthday ? '' : 'text-secondary'}}">
+          {{draft.basic.birthday || '请选择'}}{{draft.basic.constellation ? '（' + draft.basic.constellation + '）' : ''}}
+        </text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <view class="edit__row">
+      <text class="edit__label">个性签名</text>
+      <input class="edit__input" maxlength="50" value="{{draft.basic.signature}}"
+             bindinput="onInput" data-path="basic.signature" placeholder="一句话介绍自己" />
+    </view>
+    <view wx:if="{{draft.basicInit}}" class="edit__lock text-secondary">昵称/性别/生日注册后不可修改</view>
+  </view>
+
+  <!-- 相亲信息 -->
+  <view class="card edit__card">
+    <view class="edit__title">相亲信息</view>
+
+    <view class="edit__row"><text class="edit__label">关于我</text></view>
+    <textarea class="edit__textarea" maxlength="500" value="{{draft.about.aboutMe}}"
+              bindinput="onInput" data-path="about.aboutMe" placeholder="介绍你的性格、经历、生活状态…" />
+    <view class="edit__row"><text class="edit__label">希望你</text></view>
+    <textarea class="edit__textarea" maxlength="500" value="{{draft.about.aboutYou}}"
+              bindinput="onInput" data-path="about.aboutYou" placeholder="描述你期待的另一半…" />
+
+    <picker range="{{loveGoals}}" bindchange="onPickOption" data-field="about.loveGoal" data-options="loveGoals">
+      <view class="edit__row">
+        <text class="edit__label">恋爱目标</text>
+        <text class="{{draft.about.loveGoal ? '' : 'text-secondary'}}">{{draft.about.loveGoal || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker range="{{emotionalStatus}}" bindchange="onPickOption" data-field="about.emotionalStatus" data-options="emotionalStatus">
+      <view class="edit__row">
+        <text class="edit__label">情感状态</text>
+        <text class="{{draft.about.emotionalStatus ? '' : 'text-secondary'}}">{{draft.about.emotionalStatus || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker range="{{heightRange}}" value="{{draft.about.height - 140}}" bindchange="onPickHeight">
+      <view class="edit__row">
+        <text class="edit__label">身高</text>
+        <text class="{{draft.about.height ? '' : 'text-secondary'}}">{{draft.about.height ? draft.about.height + 'cm' : '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker range="{{educations}}" bindchange="onPickOption" data-field="about.education" data-options="educations">
+      <view class="edit__row">
+        <text class="edit__label">学历</text>
+        <text class="{{draft.about.education ? '' : 'text-secondary'}}">{{draft.about.education || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker range="{{jobs}}" bindchange="onPickOption" data-field="about.job" data-options="jobs">
+      <view class="edit__row">
+        <text class="edit__label">职业</text>
+        <text class="{{draft.about.job ? '' : 'text-secondary'}}">{{draft.about.job || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker mode="region" bindchange="onRegion" data-field="about.city">
+      <view class="edit__row">
+        <text class="edit__label">现居地</text>
+        <text class="{{draft.about.city ? '' : 'text-secondary'}}">{{draft.about.city || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <picker mode="region" bindchange="onRegion" data-field="about.hometown">
+      <view class="edit__row">
+        <text class="edit__label">家乡</text>
+        <text class="{{draft.about.hometown ? '' : 'text-secondary'}}">{{draft.about.hometown || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <view class="edit__row">
+      <text class="edit__label">学校</text>
+      <input class="edit__input" maxlength="20" value="{{draft.about.school}}"
+             bindinput="onInput" data-path="about.school" placeholder="最高学历院校" />
+    </view>
+
+    <view class="edit__row edit__row--column">
+      <text class="edit__label">家庭背景（可多选）</text>
+      <view class="edit__chips">
+        <text
+          wx:for="{{familyBackground}}"
+          wx:key="*this"
+          class="edit__chip {{fbMap[item] ? 'edit__chip--on' : ''}}"
+          data-item="{{item}}"
+          bindtap="onToggleFamily"
+        >{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 吸烟/喝酒/打牌：三个独立 picker -->
+  <view class="card edit__card">
+    <picker range="{{habits}}" bindchange="onPickHabit" data-field="about.smoke">
+      <view class="edit__row">
+        <text class="edit__label">吸烟</text>
+        <text class="{{draft.about.smoke ? '' : 'text-secondary'}}">{{draft.about.smoke || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+    <picker range="{{habits}}" bindchange="onPickHabit" data-field="about.drink">
+      <view class="edit__row">
+        <text class="edit__label">喝酒</text>
+        <text class="{{draft.about.drink ? '' : 'text-secondary'}}">{{draft.about.drink || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+    <picker range="{{habits}}" bindchange="onPickHabit" data-field="about.gamble">
+      <view class="edit__row">
+        <text class="edit__label">打牌</text>
+        <text class="{{draft.about.gamble ? '' : 'text-secondary'}}">{{draft.about.gamble || '请选择'}}</text>
+        <text class="edit__arrow text-secondary">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 隐私字段 -->
+  <view class="card edit__card">
+    <view class="edit__title">隐私信息 <text class="text-secondary edit__hint">保存后默认对他人隐藏</text></view>
+    <view class="edit__row">
+      <text class="edit__label">房产</text>
+      <input class="edit__input" maxlength="20" value="{{draft.privacy.asset.house}}"
+             bindinput="onInput" data-path="privacy.asset.house" placeholder="如：有房无贷" />
+    </view>
+    <view class="edit__row">
+      <text class="edit__label">车辆</text>
+      <input class="edit__input" maxlength="20" value="{{draft.privacy.asset.car}}"
+             bindinput="onInput" data-path="privacy.asset.car" placeholder="如：有车" />
+    </view>
+    <view class="edit__row">
+      <text class="edit__label">收入</text>
+      <input class="edit__input" maxlength="20" value="{{draft.privacy.asset.income}}"
+             bindinput="onInput" data-path="privacy.asset.income" placeholder="如：20-30万/年" />
+    </view>
+    <view class="edit__row">
+      <text class="edit__label">联系电话</text>
+      <input class="edit__input edit__input--phone" type="number" maxlength="11"
+             value="{{draft.privacy.contact.phone}}"
+             bindinput="onInput" data-path="privacy.contact.phone" placeholder="手机号" />
+      <button class="edit__mini-btn" size="mini" open-type="getPhoneNumber"
+              bindgetphonenumber="onGetPhone">微信获取</button>
+    </view>
+    <view class="edit__row">
+      <text class="edit__label">微信号</text>
+      <input class="edit__input" maxlength="30" value="{{draft.privacy.contact.wechat}}"
+             bindinput="onInput" data-path="privacy.contact.wechat" placeholder="微信号" />
+    </view>
+  </view>
+
+  <button class="edit__save {{saving ? 'edit__save--loading' : ''}}" bindtap="onSave"
+          disabled="{{saving}}">{{saving ? '保存中…' : '保存'}}</button>
+</view>
