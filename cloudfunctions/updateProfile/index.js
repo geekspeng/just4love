@@ -165,10 +165,14 @@ async function updateProfileByOpenid(openid, patch, db) {
   if (sanitized.initNow) merged.basicInit = true;
   merged.updatedAt = new Date().toISOString();
 
+  // 真实云数据库 set 的 data 不应携带 _id（写回 payload 剔除 _id）
+  const payload = JSON.parse(JSON.stringify(merged));
+  delete payload._id;
+
   if (existingArr.data.length > 0) {
-    await profiles.doc(existing._id).set({ data: merged });
+    await profiles.doc(existing._id).set({ data: payload });
   } else {
-    await profiles.add({ data: merged });
+    await profiles.add({ data: payload });
   }
   return { profile: merged };
 }
