@@ -52,10 +52,15 @@ async function loginWithOpenid(openid, db) {
 }
 
 exports.main = async () => {
-  const cloud = require('wx-server-sdk');
-  cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-  const { OPENID } = cloud.getWXContext();
-  return loginWithOpenid(OPENID, getDb());
+  try {
+    const cloud = require('wx-server-sdk');
+    cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+    const { OPENID } = cloud.getWXContext();
+    return await loginWithOpenid(OPENID, getDb());
+  } catch (e) {
+    console.error('[login] failed:', e);
+    return { error: 'internal error' };
+  }
 };
 exports.loginWithOpenid = loginWithOpenid;
 exports.nextGuestNo = nextGuestNo;

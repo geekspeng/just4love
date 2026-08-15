@@ -178,9 +178,14 @@ async function updateProfileByOpenid(openid, patch, db) {
 }
 
 exports.main = async (event) => {
-  const cloud = require('wx-server-sdk');
-  cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-  const openid = cloud.getWXContext().OPENID;
-  return updateProfileByOpenid(openid, (event || {}).patch, getDb());
+  try {
+    const cloud = require('wx-server-sdk');
+    cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+    const openid = cloud.getWXContext().OPENID;
+    return await updateProfileByOpenid(openid, (event || {}).patch, getDb());
+  } catch (e) {
+    console.error('[updateProfile] failed:', e);
+    return { error: 'internal error' };
+  }
 };
 exports.updateProfileByOpenid = updateProfileByOpenid;

@@ -26,8 +26,13 @@ async function deleteAccountByOpenid(openid, db) {
 }
 
 exports.main = async () => {
-  const cloud = require('wx-server-sdk');
-  cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-  return deleteAccountByOpenid(cloud.getWXContext().OPENID, getDb());
+  try {
+    const cloud = require('wx-server-sdk');
+    cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+    return await deleteAccountByOpenid(cloud.getWXContext().OPENID, getDb());
+  } catch (e) {
+    console.error('[deleteAccount] failed:', e);
+    return { error: 'internal error' };
+  }
 };
 exports.deleteAccountByOpenid = deleteAccountByOpenid;

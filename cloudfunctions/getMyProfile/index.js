@@ -29,8 +29,13 @@ async function getMyProfileByOpenid(openid, db) {
 }
 
 exports.main = async () => {
-  const cloud = require('wx-server-sdk');
-  cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-  return getMyProfileByOpenid(cloud.getWXContext().OPENID, getDb());
+  try {
+    const cloud = require('wx-server-sdk');
+    cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+    return await getMyProfileByOpenid(cloud.getWXContext().OPENID, getDb());
+  } catch (e) {
+    console.error('[getMyProfile] failed:', e);
+    return { error: 'internal error' };
+  }
 };
 exports.getMyProfileByOpenid = getMyProfileByOpenid;

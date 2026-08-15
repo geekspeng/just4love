@@ -29,13 +29,18 @@ async function bindPhoneByOpenid(openid, code, db, openapi) {
 }
 
 exports.main = async (event) => {
-  const cloud = require('wx-server-sdk');
-  cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-  return bindPhoneByOpenid(
-    cloud.getWXContext().OPENID,
-    (event || {}).code,
-    getDb(),
-    cloud.openapi
-  );
+  try {
+    const cloud = require('wx-server-sdk');
+    cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+    return await bindPhoneByOpenid(
+      cloud.getWXContext().OPENID,
+      (event || {}).code,
+      getDb(),
+      cloud.openapi
+    );
+  } catch (e) {
+    console.error('[bindPhone] failed:', e);
+    return { error: 'internal error' };
+  }
 };
 exports.bindPhoneByOpenid = bindPhoneByOpenid;
