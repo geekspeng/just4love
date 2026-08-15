@@ -37,10 +37,10 @@ describe('just4love E2E', () => {
   }, T);
 
   it('推荐页 mock 数据完整（昵称/身高）', async () => {
-    const list = await pageData<{ nickname: string; height: number }[]>(mp, 'list');
-    expect(list[0].nickname).toBe('小鱼');
-    expect(list[0].height).toBe(165);
-    expect(list[1].nickname).toBe('大刘');
+    const list = await pageData<{ basic: { nickname: string }; about: { height: number } }[]>(mp, 'list');
+    expect(list[0].basic.nickname).toBe('小鱼');
+    expect(list[0].about.height).toBe(165);
+    expect(list[1].basic.nickname).toBe('大刘');
   }, T);
 
   it('切换到「消息」tab 并校验会话列表', async () => {
@@ -56,9 +56,10 @@ describe('just4love E2E', () => {
     await mp.switchTab('/pages/mine/mine');
     expect(await currentRoute(mp)).toContain('mine');
 
-    expect(await countSelector(mp, '.mine__menu')).toBe(4);
-    const profile = await pageData<{ nickname: string }>(mp, 'profile');
-    expect(profile.nickname).toContain('登录');
+    // P1 后菜单扩为六项；无云环境时登录态兜底为 null（页面显示「点击登录」）
+    expect(await countSelector(mp, '.mine__menu')).toBe(6);
+    const user = await pageData<{ guestNo: string } | null>(mp, 'user');
+    expect(user === null || typeof user.guestNo === 'string').toBe(true);
   }, T);
 
   it('「我的」页菜单交互可触发（onTapMenu）', async () => {
@@ -73,6 +74,8 @@ describe('just4love E2E', () => {
   }, T);
 
   it('切回「推荐」tab', async () => {
+    // 上一用例的 onTapMenu 已触发 navigateTo，稍候其完成再 switchTab，避免竞态
+    await new Promise((r) => setTimeout(r, 800));
     await mp.switchTab('/pages/recommend/recommend');
     expect(await currentRoute(mp)).toContain('recommend');
   }, T);
