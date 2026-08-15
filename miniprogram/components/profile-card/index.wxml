@@ -5,6 +5,12 @@
     <view class="pc__head-main">
       <view class="pc__no text-secondary">{{profile.basic.guestNo || ''}} {{verified ? '· 已实名' : '· 未实名'}}</view>
       <view wx:if="{{profile.basic.signature}}" class="pc__signature">{{profile.basic.signature}}</view>
+      <view
+        wx:if="{{storyList.length}}"
+        class="pc__voice text-primary"
+        catchtap="onPlayStory"
+        data-index="{{0}}"
+      >{{playingIndex === 0 ? '■ 停止语音介绍' : '▶ 播放语音介绍'}}</view>
     </view>
   </view>
 
@@ -37,6 +43,31 @@
   <view class="pc__section" wx:if="{{familyText}}">
     <view class="pc__section-title">家庭背景</view>
     <view class="pc__section-body">{{familyText}}</view>
+  </view>
+
+  <view class="pc__section" wx:if="{{albumList.length}}">
+    <view class="pc__section-title">我的生活</view>
+    <view class="pc__album">
+      <view class="pc__album-item" wx:for="{{albumList}}" wx:key="category">
+        <image class="pc__album-img" src="{{item.fileID}}" mode="aspectFill"
+               catchtap="onPreviewAlbum" data-index="{{index}}" />
+        <text class="pc__album-cat text-secondary">{{item.category}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="pc__section" wx:if="{{storyList.length}}">
+    <view class="pc__section-title">我的故事</view>
+    <view class="pc__stories">
+      <view class="pc__story" wx:for="{{storyList}}" wx:key="topic">
+        <text class="pc__story-topic"># {{item.topic}}</text>
+        <text
+          class="pc__story-play {{playingIndex === index ? 'pc__story-play--on' : ''}}"
+          catchtap="onPlayStory"
+          data-index="{{index}}"
+        >{{playingIndex === index ? '■ 停止' : '▶ 播放'}}</text>
+      </view>
+    </view>
   </view>
 
   <view class="pc__actions" wx:if="{{showActions}}">

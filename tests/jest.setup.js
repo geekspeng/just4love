@@ -24,6 +24,13 @@ global.wx = {
   setStorageSync: jest.fn(),
   removeStorageSync: jest.fn(),
   login: jest.fn(),
+  previewImage: jest.fn(),
+  createInnerAudioContext: jest.fn(() => ({
+    src: '',
+    play: jest.fn(),
+    stop: jest.fn(),
+    destroy: jest.fn(),
+  })),
 };
 
 // 每次 setup 后可由单个测试用例覆盖 wx.cloud.callFunction 的返回值

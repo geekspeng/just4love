@@ -65,6 +65,14 @@ Component({
       this.setData(buildDisplay(p));
     },
   },
+  lifetimes: {
+    detached() {
+      if (this._audio) {
+        this._audio.destroy();
+        this._audio = null;
+      }
+    },
+  },
   methods: {
     onTap() {
       this.triggerEvent('tap', { profile: this.data.profile });
@@ -75,6 +83,32 @@ Component({
     onPass() {
       this.triggerEvent('pass', { profile: this.data.profile });
     },
-    // onPlayStory / onPreviewAlbum 在 Task 12 加入
+
+    onPlayStory(e) {
+      const idx = Number(e.currentTarget.dataset.index);
+      const story = this.data.storyList[idx];
+      if (!story || !story.audioFileID) return;
+      if (typeof wx === 'undefined' || typeof wx.createInnerAudioContext !== 'function') return;
+      if (!this._audio) this._audio = wx.createInnerAudioContext();
+      if (this.data.playingIndex === idx) {
+        this._audio.stop();
+        this.setData({ playingIndex: -1 });
+        return;
+      }
+      if (this.data.playingIndex !== -1) {
+        this._audio.stop();
+      }
+      this._audio.src = story.audioFileID;
+      this._audio.play();
+      this.setData({ playingIndex: idx });
+    },
+
+    onPreviewAlbum(e) {
+      const idx = Number(e.currentTarget.dataset.index);
+      const urls = this.data.albumList.map((a) => a.fileID);
+      if (typeof wx !== 'undefined' && wx.previewImage) {
+        wx.previewImage({ current: urls[idx], urls });
+      }
+    },
   },
 });

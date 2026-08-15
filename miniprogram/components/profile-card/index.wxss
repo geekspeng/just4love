@@ -98,3 +98,45 @@
   background: var(--color-primary);
   color: #ffffff;
 }
+.pc__voice {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+}
+.pc__album {
+  display: flex;
+  flex-wrap: wrap;
+}
+.pc__album-item {
+  width: 33.3%;
+  padding: 0 8rpx 16rpx 0;
+  box-sizing: border-box;
+}
+.pc__album-img {
+  width: 100%;
+  height: 180rpx;
+  border-radius: 12rpx;
+  background: #eeeeee;
+  display: block;
+}
+.pc__album-cat {
+  font-size: 22rpx;
+  display: block;
+  margin-top: 6rpx;
+}
+.pc__story {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.pc__story:last-child {
+  border-bottom: none;
+}
+.pc__story-topic {
+  font-size: 26rpx;
+}
+.pc__story-play {
+  font-size: 24rpx;
+  color: var(--color-primary);
+}
