@@ -153,7 +153,11 @@ Page({
           'avatars/' + (this.data.draft.userId || 'unknown'),
           this._pendingAvatarPath
         );
-        if (fileID) patch.basic = { ...patch.basic, avatarFileID: fileID };
+        if (!fileID) {
+          wx.showToast({ title: '头像上传失败，请重试', icon: 'none' });
+          return;
+        }
+        patch.basic = { ...patch.basic, avatarFileID: fileID };
       }
       const res = await callFunction('updateProfile', { patch });
       if (res && res.profile) {
