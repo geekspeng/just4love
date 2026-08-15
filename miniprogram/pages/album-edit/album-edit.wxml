@@ -1,0 +1,18 @@
+<view class="container album">
+  <view class="text-secondary album__tip">每个分类上传一张照片，共 5 张</view>
+  <view class="card">
+    <view class="album__row" wx:for="{{slots}}" wx:key="category">
+      <text class="album__cat">{{item.category}}</text>
+      <view class="album__ops">
+        <image wx:if="{{item.fileID}}" class="album__thumb" src="{{item.fileID}}"
+               mode="aspectFill" bindtap="onPreview" data-category="{{item.category}}" />
+        <text wx:else class="album__empty text-secondary" bindtap="onChoose"
+              data-category="{{item.category}}">＋ 上传</text>
+        <text wx:if="{{item.fileID}}" class="album__op text-primary" bindtap="onChoose"
+              data-category="{{item.category}}">更换</text>
+        <text wx:if="{{item.fileID}}" class="album__op text-secondary" bindtap="onRemove"
+              data-category="{{item.category}}">删除</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -6,6 +6,7 @@ const { ensureLogin, getCachedUser } = require('../../utils/auth.js');
 // 未接通的保持 toast 占位，避免指向不存在的页面。
 const WIRED = {
   edit: '/pages/profile-edit/profile-edit',
+  album: '/pages/album-edit/album-edit',
 };
 
 Page({
