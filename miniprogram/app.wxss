@@ -3,6 +3,7 @@
 /* 主题色（小程序 WXSS 支持 CSS 变量，基础库 2.x+ 生效） */
 page {
   --color-primary: #FF5A5F;
+  --color-primary-light: #fff1f1;
   --color-text-primary: #222222;
   --color-text-secondary: #999999;
   --color-bg: #f7f7f7;

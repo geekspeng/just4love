@@ -58,7 +58,7 @@
 .pc__section-body {
   font-size: 26rpx;
   line-height: 1.6;
-  color: #555555;
+  color: var(--color-text-secondary);
 }
 .pc__chip-group {
   margin-bottom: 12rpx;
@@ -72,7 +72,7 @@
 }
 .pc__chip {
   font-size: 24rpx;
-  background: #fff1f1;
+  background: var(--color-primary-light);
   color: var(--color-primary);
   border-radius: 24rpx;
   padding: 4rpx 18rpx;
@@ -91,7 +91,7 @@
 }
 .pc__btn--pass {
   background: #f5f5f5;
-  color: #666666;
+  color: var(--color-text-secondary);
   margin-right: 24rpx;
 }
 .pc__btn--like {
