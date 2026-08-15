@@ -1,8 +1,0 @@
-{
-  "name": "quickstartFunctions",
-  "version": "1.0.0",
-  "description": "云开发快速启动占位云函数（后续按需拆分为具体业务函数）",
-  "main": "index.js",
-  "dependencies": {},
-  "private": true
-}
