@@ -78,6 +78,8 @@ describe('P1 登录与资料 E2E', () => {
     expect(await countSelector(mp, '.preview >>> .pc')).toBe(1);
     const profile = await pageData<{ privacy?: unknown }>(mp, 'profile');
     expect(profile).toBeTruthy();
+    // 隐私占位卡为页面级节点：断言 🔒 占位卡存在 = 隐私字段以占位符而非明文渲染
+    expect(await countSelector(mp, '.preview__privacy')).toBe(1);
     await mp.navigateBack();
   }, T);
 
