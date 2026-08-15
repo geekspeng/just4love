@@ -1,13 +1,17 @@
 <view class="container mine">
-  <view class="mine__profile card">
-    <image class="mine__avatar" src="{{profile.avatar}}" mode="aspectFill" />
+  <view class="mine__profile card" bindtap="onTapProfile">
+    <image
+      class="mine__avatar"
+      src="{{profileSummary.avatarFileID || '/assets/tabbar/mine.png'}}"
+      mode="aspectFill"
+    />
     <view class="mine__info">
-      <view class="mine__name">{{profile.nickname}}</view>
+      <view class="mine__name">{{profileSummary.nickname || (user ? user.guestNo : '点击登录')}}</view>
       <view class="mine__meta text-secondary">
-        <text wx:if="{{profile.age}}">{{profile.age}}</text>
-        <text wx:if="{{profile.age && profile.height}}"> · </text>
-        <text wx:if="{{profile.height}}">{{profile.height}}</text>
+        <text wx:if="{{user}}">{{user.guestNo}}</text>
+        <text wx:elif="{{!user}}">微信一键登录，完善相亲资料</text>
       </view>
+      <view wx:if="{{profileSummary.signature}}" class="mine__meta text-secondary">{{profileSummary.signature}}</view>
     </view>
   </view>
 
