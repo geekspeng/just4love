@@ -28,6 +28,7 @@ describe('utils/constellation', () => {
     expect(getConstellation('1995-13-01')).toBe(''); // 月非法
     expect(getConstellation('1995-00-10')).toBe('');
     expect(getConstellation('1995-06-31')).toBe(''); // 日非法
+    expect(getConstellation('2000-02-29')).toBe('双鱼座'); // 闰年2月29日有效
     expect(getConstellation(null)).toBe('');
     expect(getConstellation(19950615)).toBe('');
   });

@@ -12,12 +12,16 @@ function getConstellation(birthday) {
   if (typeof birthday !== 'string') return '';
   const m = birthday.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) return '';
+  const year = Number(m[1]);
   const month = Number(m[2]);
   const day = Number(m[3]);
   if (month < 1 || month > 12 || day < 1 || day > 31) return '';
 
-  // 各月份最大天数（非闰年二月按 28 天处理，星座计算无需精确到闰年）
+  // 各月份最大天数（二月根据闰年判断）
   const maxDays = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  // 闰年判断：能被4整除且不能被100整除，或能被400整除
+  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  if (isLeap) maxDays[2] = 29;
   if (day > maxDays[month]) return '';
 
   // 找到第一个「尚未到达」的起始日，其前一项即当前星座
