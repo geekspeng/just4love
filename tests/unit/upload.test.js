@@ -17,8 +17,12 @@ describe('utils/upload', () => {
   });
 
   test('uploadFile 失败返回 null（不抛错）', async () => {
+    // 静默错误日志避免 Jest 控制台噪音，同时断言确实记录了失败
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     wx.cloud.uploadFile.mockRejectedValueOnce(new Error('quota'));
     expect(await uploadFile('a/b.jpg', 'wxfile://tmp/1.jpg')).toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith('[upload] failed:', 'a/b.jpg', expect.any(Error));
+    errorSpy.mockRestore();
   });
 
   test('uploadImage 生成去重路径并保留扩展名', async () => {
