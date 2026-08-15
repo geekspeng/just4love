@@ -6,7 +6,8 @@
     "pages/profile-edit/profile-edit",
     "pages/album-edit/album-edit",
     "pages/story-edit/story-edit",
-    "pages/tags-edit/tags-edit"
+    "pages/tags-edit/tags-edit",
+    "pages/profile-preview/profile-preview"
   ],
   "window": {
     "backgroundTextStyle": "light",

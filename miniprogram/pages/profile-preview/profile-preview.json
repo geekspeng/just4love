@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的资料卡",
+  "usingComponents": {
+    "profile-card": "/components/profile-card/index"
+  }
+}

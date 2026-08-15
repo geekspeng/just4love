@@ -1,0 +1,10 @@
+<view class="container preview" wx:if="{{profile}}">
+  <profile-card profile="{{profile}}" verified="{{verified}}" />
+
+  <!-- 他人视角：隐私字段不显示明文（P3 激活授权流） -->
+  <view class="card preview__privacy">
+    <text class="text-secondary">🔒 联系方式与资产信息：征求同意后可见</text>
+  </view>
+
+  <view class="preview__tip text-secondary">以上为他人查看你资料卡时的效果</view>
+</view>
