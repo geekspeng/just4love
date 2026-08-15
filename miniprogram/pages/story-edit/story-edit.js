@@ -22,9 +22,14 @@ Page({
     }
     this.initRecorder();
     this._audio = wx.createInnerAudioContext();
+    this._audio.onEnded(() => this.setData({ playingIndex: -1 }));
   },
 
   onUnload() {
+    if (this._recorder && this.data.recordingIndex >= 0) {
+      this._unloaded = true; // 页面已卸载，onStop 不再上传/持久化
+      this._recorder.stop();
+    }
     if (this._audio) {
       this._audio.destroy();
       this._audio = null;
@@ -79,6 +84,7 @@ Page({
   },
 
   async handleRecorded(idx, tempFilePath) {
+    if (this._unloaded) return;
     this.setData({ recordingIndex: -1 });
     if (idx == null || !tempFilePath) return;
     wx.showLoading({ title: '上传中' });
