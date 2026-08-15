@@ -1,0 +1,10 @@
+{
+  "name": "setupDb",
+  "version": "1.0.0",
+  "description": "环境初始化：幂等创建 users/counters/profiles 集合并探测可查询性",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}
