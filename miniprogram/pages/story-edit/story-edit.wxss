@@ -1,0 +1,40 @@
+.story__tip {
+  font-size: 24rpx;
+  margin-bottom: 16rpx;
+}
+.story__item {
+  margin-bottom: 20rpx;
+}
+.story__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+}
+.story__topic {
+  font-size: 28rpx;
+}
+.story__arrow {
+  font-size: 30rpx;
+}
+.story__rec {
+  font-size: 26rpx;
+}
+.story__rec--on {
+  font-weight: 600;
+}
+.story__play {
+  font-size: 26rpx;
+  margin-left: 24rpx;
+}
+.story__del {
+  font-size: 24rpx;
+  margin-left: 24rpx;
+}
+.story__add {
+  text-align: center;
+  padding: 24rpx;
+  color: var(--color-primary);
+  background: #ffffff;
+  border-radius: var(--radius-card);
+}

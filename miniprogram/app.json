@@ -4,7 +4,8 @@
     "pages/message/message",
     "pages/mine/mine",
     "pages/profile-edit/profile-edit",
-    "pages/album-edit/album-edit"
+    "pages/album-edit/album-edit",
+    "pages/story-edit/story-edit"
   ],
   "window": {
     "backgroundTextStyle": "light",

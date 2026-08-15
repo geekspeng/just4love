@@ -1,0 +1,32 @@
+<view class="container story">
+  <view class="text-secondary story__tip">录制最多 5 段语音故事，每段 ≤60 秒</view>
+
+  <view class="card story__item" wx:for="{{stories}}" wx:key="index">
+    <picker range="{{topics}}" value="{{item.topic}}" bindchange="onPickTopic" data-index="{{index}}">
+      <view class="story__row">
+        <text class="story__topic {{item.topic ? '' : 'text-secondary'}}">{{item.topic || '选择话题'}}</text>
+        <text class="story__arrow text-secondary">›</text>
+      </view>
+    </picker>
+
+    <view class="story__row">
+      <text
+        wx:if="{{recordingIndex !== index}}"
+        class="story__rec text-primary"
+        bindtap="onTapRecord"
+        data-index="{{index}}"
+      >{{item.audioFileID ? '重新录制' : '● 开始录音'}}</text>
+      <text wx:else class="story__rec story__rec--on" bindtap="onTapStop">■ 结束录音</text>
+
+      <text wx:if="{{item.audioFileID}}"
+            class="story__play {{playingIndex === index ? 'story__play--on' : ''}}"
+            bindtap="onTogglePlay" data-index="{{index}}">
+        {{playingIndex === index ? '■ 停止' : '▶ 试听'}}
+      </text>
+
+      <text class="story__del text-secondary" bindtap="onDeleteStory" data-index="{{index}}">删除</text>
+    </view>
+  </view>
+
+  <view wx:if="{{stories.length < 5}}" class="story__add" bindtap="onAddStory">＋ 添加故事</view>
+</view>
