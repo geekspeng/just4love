@@ -67,7 +67,7 @@ TDesign 的 t-picker / t-input / t-textarea 是受控组件，需 js 增加 visi
 | tags-edit | 自定义 chips | `t-check-tag`（选中态内置），保存按钮 `t-button` |
 | album-edit | 纯文字「＋上传」 | 自定义图片格（`t-image` + `t-icon` 组合，视觉对齐 TDesign Upload 组件：缩略图角标更换/删除），保留现有 onChoose / onPreview / onRemove 云存储逻辑。不用 `t-upload` 组件本体——其「动态增删」模型与「固定 5 分类槽位」不适配 |
 | story-edit | 手写录音交互行 | 视觉换 `t-cell` / `t-tag` / `t-icon`，录音 / 试听 / 话题选择逻辑不动 |
-| message | 手写会话卡 | `t-cell` + `t-avatar` + `t-badge` 组合，空态 `t-empty` |
+| message | 手写会话卡 | `t-avatar` + `t-badge`（行布局保留自定义 card 行——t-cell 无头像位，slot 方案风险高），空态 `t-empty` |
 
 ### 5. 行为不变约束
 
