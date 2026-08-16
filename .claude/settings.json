@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/block-sensitive-commit.sh",
+            "timeout": 15,
+            "statusMessage": "检查暂存区敏感值…"
+          }
+        ]
+      }
+    ]
+  }
+}
