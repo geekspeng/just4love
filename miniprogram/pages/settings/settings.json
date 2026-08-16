@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "设置",
-  "usingComponents": {}
+  "usingComponents": {
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
 }

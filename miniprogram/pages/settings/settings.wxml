@@ -1,15 +1,15 @@
 <view class="container settings">
   <view class="card settings__menus">
-    <view
+    <t-cell
       wx:for="{{menus}}"
       wx:key="id"
       class="settings__menu {{item.id === 'delete' ? 'settings__menu--danger' : ''}}"
+      title="{{item.label}}"
+      arrow
+      hover
       data-id="{{item.id}}"
-      bindtap="onTapMenu"
-    >
-      <text>{{item.label}}</text>
-      <text class="settings__arrow text-secondary">›</text>
-    </view>
+      bind:click="onTapMenu"
+    />
   </view>
   <view class="text-secondary settings__ver">遇见爱 v1.0.1</view>
 </view>
