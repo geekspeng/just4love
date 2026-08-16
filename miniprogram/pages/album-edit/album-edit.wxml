@@ -4,10 +4,26 @@
     <view class="album__row" wx:for="{{slots}}" wx:key="category">
       <text class="album__cat">{{item.category}}</text>
       <view class="album__ops">
-        <image wx:if="{{item.fileID}}" class="album__thumb" src="{{item.fileID}}"
-               mode="aspectFill" bindtap="onPreview" data-category="{{item.category}}" />
-        <text wx:else class="album__empty text-secondary" bindtap="onChoose"
-              data-category="{{item.category}}">＋ 上传</text>
+        <t-image
+          wx:if="{{item.fileID}}"
+          class="album__thumb"
+          src="{{item.fileID}}"
+          mode="aspectFill"
+          width="120rpx"
+          height="120rpx"
+          shape="round"
+          bindtap="onPreview"
+          data-category="{{item.category}}"
+        />
+        <view
+          wx:else
+          class="album__add"
+          bindtap="onChoose"
+          data-category="{{item.category}}"
+        >
+          <t-icon name="add" size="40rpx" />
+          <text class="album__add-text">上传</text>
+        </view>
         <text wx:if="{{item.fileID}}" class="album__op text-primary" bindtap="onChoose"
               data-category="{{item.category}}">更换</text>
         <text wx:if="{{item.fileID}}" class="album__op text-secondary" bindtap="onRemove"

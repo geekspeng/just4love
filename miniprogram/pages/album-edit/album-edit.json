@@ -1,4 +1,7 @@
 {
-  "navigationBarTitleText": "我的相册",
-  "usingComponents": {}
+  "navigationBarTitleText": "编辑相册",
+  "usingComponents": {
+    "t-image": "tdesign-miniprogram/image/image",
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
 }
