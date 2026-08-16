@@ -25,4 +25,9 @@ describe('工具页 TDesign 接入 E2E', () => {
     expect(await currentRoute(mp)).toContain('settings');
     expect(await countSelector(mp, '.settings__menus >>> .t-cell')).toBe(6);
   }, T);
+
+  it('message 页会话渲染 t-avatar', async () => {
+    await mp.switchTab('/pages/message/message');
+    expect(await countSelector(mp, '.message__item >>> .t-avatar')).toBeGreaterThanOrEqual(1);
+  }, T);
 });

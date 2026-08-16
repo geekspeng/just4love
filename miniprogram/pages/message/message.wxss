@@ -11,6 +11,7 @@
   width: 88rpx;
   height: 88rpx;
   border-radius: 50%;
+  overflow: hidden;
   background: #eeeeee;
   flex-shrink: 0;
 }
@@ -30,18 +31,6 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.message__badge {
-  min-width: 36rpx;
-  height: 36rpx;
-  padding: 0 10rpx;
-  border-radius: 18rpx;
-  background: var(--color-primary);
-  color: #ffffff;
-  font-size: 22rpx;
-  line-height: 36rpx;
-  text-align: center;
-}
-.message__empty {
-  text-align: center;
-  margin-top: 120rpx;
+.message__badge-host {
+  margin-left: 16rpx;
 }

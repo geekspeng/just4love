@@ -7,15 +7,13 @@
       data-id="{{item.id}}"
       bindtap="onTapSession"
     >
-      <image class="message__avatar" src="{{item.avatar}}" mode="aspectFill" />
+      <t-avatar class="message__avatar" image="{{item.avatar}}" shape="circle" size="88" />
       <view class="message__body">
         <view class="message__name">{{item.nickname}}</view>
         <view class="message__last text-secondary">{{item.lastMessage}}</view>
       </view>
-      <view wx:if="{{item.unread}}" class="message__badge">{{item.unread}}</view>
+      <t-badge wx:if="{{item.unread}}" class="message__badge-host" count="{{item.unread}}" />
     </view>
   </view>
-  <view class="message__empty text-secondary" wx:if="{{!sessions.length}}">
-    还没有消息
-  </view>
+  <t-empty wx:if="{{!sessions.length}}" class="message__empty" description="还没有消息" />
 </view>
