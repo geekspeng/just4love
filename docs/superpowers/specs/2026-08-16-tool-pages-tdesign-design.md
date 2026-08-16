@@ -1,7 +1,7 @@
 # 工具页接入 TDesign 组件库设计
 
 日期：2026-08-16
-状态：已与用户确认设计方向（工具页优先、TDesign、反馈类保留原生）
+状态：已与用户确认设计方向（工具页优先、TDesign、反馈类保留原生）；2026-08-16 修订：不引入 TDesign 受控组件（t-picker/t-input/t-textarea/t-upload），picker/input/open-type 保留原生，兑现 js 零改动
 
 ## 背景与问题
 
@@ -51,21 +51,29 @@ page {
 }
 ```
 
-### 3. 页面组件映射
+### 3. 组件使用策略（2026-08-16 修订）
+
+TDesign 的 t-picker / t-input / t-textarea 是受控组件，需 js 增加 visible 状态与事件转发，且组件转发可能破坏 `type="nickname"` 昵称填充、`open-type` 手机号获取等微信能力（p1-profile e2e 重度覆盖）。经用户确认取舍：
+
+- **采用 TDesign**：`t-cell-group` / `t-cell`、`t-tag` / `t-check-tag`、`t-icon`、`t-image`、`t-avatar`、`t-badge`、`t-empty`、`t-button`（仅无 open-type 的普通按钮）
+- **保留原生**（样式对齐 TDesign 观感）：`<input type="nickname">`、`<textarea>`、`<picker>`（作触发行外层包裹，弹层为系统原生）、`<button open-type="...">`（chooseAvatar / getPhoneNumber）
+
+### 4. 页面组件映射
 
 | 页面 | 现状 | 替换为 |
 |---|---|---|
-| profile-edit | 手写行布局 + 原生 input/textarea + 7 处原生 `picker` 弹层 | `t-cell-group` / `t-cell` 行布局；`t-input` / `t-textarea`；`t-picker`（底部弹层式）；`t-check-tag`（家庭背景多选）；`t-button`（保存；`open-type` 的 chooseAvatar / getPhoneNumber 按钮用 `t-button` 原样保留能力，微信获取能力不受影响） |
+| profile-edit | 手写行布局 + 原生 input/textarea + 7 处原生 `picker` 弹层 | `t-cell-group` / `t-cell` 行布局与分区；原生 `input`（含 type="nickname"）/ `textarea` / `picker` 保留（picker 包在 cell 外层，样式对齐）；`t-check-tag`（家庭背景多选）；`t-button`（保存）；原生 `button open-type`（chooseAvatar / getPhoneNumber）原样保留 |
 | settings | 手写菜单行 | `t-cell-group` + `t-cell`（箭头、danger 样式内置），版本号文案保留 |
 | tags-edit | 自定义 chips | `t-check-tag`（选中态内置），保存按钮 `t-button` |
 | album-edit | 纯文字「＋上传」 | 自定义图片格（`t-image` + `t-icon` 组合，视觉对齐 TDesign Upload 组件：缩略图角标更换/删除），保留现有 onChoose / onPreview / onRemove 云存储逻辑。不用 `t-upload` 组件本体——其「动态增删」模型与「固定 5 分类槽位」不适配 |
 | story-edit | 手写录音交互行 | 视觉换 `t-cell` / `t-tag` / `t-icon`，录音 / 试听 / 话题选择逻辑不动 |
 | message | 手写会话卡 | `t-cell` + `t-avatar` + `t-badge` 组合，空态 `t-empty` |
 
-### 4. 行为不变约束
+### 5. 行为不变约束
 
 - 各页功能行为保持：保存校验、上传（含失败 toast）、录音试听、会话点击均不改变触发路径
 - `type="nickname"` 头像昵称填充、`open-type` 手机号获取等微信原生能力必须保留等价入口
+- wxml 重写时事件处理器名（onInput / onPickGender / onRegion / onToggleFamily 等）与页面级 BEM class（如 `.message__item`）一律不变——e2e 断言依赖二者
 
 ## 测试与风险
 
