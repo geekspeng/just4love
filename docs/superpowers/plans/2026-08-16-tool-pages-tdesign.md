@@ -67,13 +67,9 @@ cd /Users/geekspeng/OpenSource/GitHub/just4love/miniprogram && npm install tdesi
 若 CLI 卡在服务端口（参见 `.claude/skills/e2e-test/SKILL.md` 环境事实），改用 GUI：微信开发者工具 → 工具 → 构建 npm。
 验收：`miniprogram/miniprogram_npm/tdesign-miniprogram/` 目录存在。
 
-- [ ] **Step 5: app.json 开启按需注入**
+- [ ] **Step 5: app.json 开启按需注入（2026-08-16 用户裁定作废）**
 
-在 `"sitemapLocation": "sitemap.json"` 之后追加一行：
-
-```json
-"lazyCodeLoading": "requiredComponents"
-```
+~~原计划追加 `"lazyCodeLoading": "requiredComponents"`~~。实测该配置与 miniprogram-automator e2e 存在时序冲突（加了必挂「切回推荐 tab」用例），用户裁定移除（commit c398826）。本步骤不执行。
 
 - [ ] **Step 6: app.wxss 挂 TDesign 主题映射**
 
@@ -987,16 +983,16 @@ Expected: app / message / p1-profile / tool-pages-tdesign 四个文件全过
 
 - [ ] **Step 3: 主包体积复查**
 
-微信开发者工具 → 详情 → 基本信息 → 代码包体积。记录数值，**必须 < 2MB**；超出则停下向用户报告（按需引入或分包再议，不自行扩 scope）。
+先跑 `/Applications/wechatwebdevtools.app/Contents/MacOS/cli preview --project /Users/geekspeng/OpenSource/GitHub/just4love --qr-format terminal`（需 DevTools 已登录）：命令成功即上传包构建通过；若因体积超限报错，记录错误。再请用户在 DevTools → 详情 → 基本信息 → 代码包体积确认精确数值（本地 miniprogram_npm 5.1MB 不等于上传包——`ignoreUploadUnusedFiles: true` 会裁剪未引用文件）。**上传包必须 < 2MB**；超出则停下向用户报告（按需引入或分包再议，不自行扩 scope）。
 
 - [ ] **Step 4: 视觉走查清单（DevTools 逐页）**
 
-- settings：6 行 t-cell 菜单、注销行红字
+- settings：6 行 t-cell 菜单、注销行红字；**点一行菜单（如「帮助」）确认能跳转 agreement 页**（t-cell 宿主 dataset 传递无自动化覆盖）
 - message：圆形头像、未读角标、空态
-- tags-edit：4 组 t-check-tag、选中品牌色、整宽保存按钮
-- album-edit：虚线空槽带加号、圆角缩略图、更换/删除
-- story-edit：话题行 chevron、录音字符按钮、「＋ 添加故事」
-- profile-edit：四卡片、13 个 picker 行、chips、保存按钮
+- tags-edit：4 组 t-check-tag、选中品牌色、整宽保存按钮；**点选/取消一个标签确认切换与保存可用**（t-check-tag 宿主 dataset 传递无自动化覆盖）
+- album-edit：虚线空槽带加号、圆角缩略图、更换/删除；**点「＋上传」确认能拉起选图、点已传分类缩略图确认 onPreview 预览触发**（两者绑定无自动化覆盖）
+- story-edit：话题行 chevron、录音字符按钮、「＋ 添加故事」；**点话题行确认原生 picker 弹层正常**
+- profile-edit：四卡片、13 个 picker 行、chips、保存按钮；**点一个 picker 行（如「性别」外的任选）确认弹层与回填正常、点保存确认流程走通、头像/「微信获取」按钮可点**
 - 全局：主题色仍为 #FF5A5F（t-button/t-check-tag 选中态）
 
 - [ ] **Step 5: 收尾提交（如有修正）**
