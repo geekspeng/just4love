@@ -4,16 +4,17 @@
   <view class="card tags__group" wx:for="{{pools}}" wx:for-item="g" wx:key="key">
     <view class="tags__title">{{g.title}}</view>
     <view class="tags__chips">
-      <text
+      <t-check-tag
         wx:for="{{g.items}}"
         wx:key="name"
-        class="tags__chip {{item.selected ? 'tags__chip--on' : ''}}"
+        class="tags__chip"
+        checked="{{item.selected}}"
         data-group="{{g.key}}"
         data-name="{{item.name}}"
-        bindtap="onToggle"
-      >{{item.name}}</text>
+        bind:change="onToggle"
+      >{{item.name}}</t-check-tag>
     </view>
   </view>
 
-  <button class="tags__save" loading="{{saving}}" disabled="{{saving}}" bindtap="onSave">保存</button>
+  <t-button class="tags__save-btn" theme="primary" block loading="{{saving}}" disabled="{{saving}}" bind:tap="onSave">保存</t-button>
 </view>

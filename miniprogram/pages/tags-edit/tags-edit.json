@@ -1,4 +1,7 @@
 {
-  "navigationBarTitleText": "我的标签",
-  "usingComponents": {}
+  "navigationBarTitleText": "选择标签",
+  "usingComponents": {
+    "t-check-tag": "tdesign-miniprogram/check-tag/check-tag",
+    "t-button": "tdesign-miniprogram/button/button"
+  }
 }
