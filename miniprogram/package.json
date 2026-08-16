@@ -1,0 +1,9 @@
+{
+  "name": "just4love-miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "just4love 小程序侧 npm 依赖（TDesign 组件库）",
+  "dependencies": {
+    "tdesign-miniprogram": "^1.16.0"
+  }
+}

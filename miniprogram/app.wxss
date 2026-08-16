@@ -9,6 +9,10 @@ page {
   --color-bg: #f7f7f7;
   --radius-card: 16rpx;
 
+  /* TDesign 主题映射：单一事实源仍是上方 --color-* */
+  --td-brand-color: var(--color-primary);
+  --td-radius-large: var(--radius-card);
+
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
