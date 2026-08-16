@@ -3,13 +3,13 @@
 
   <view class="card story__item" wx:for="{{stories}}" wx:key="index">
     <picker range="{{topics}}" value="{{item.topic}}" bindchange="onPickTopic" data-index="{{index}}">
-      <view class="story__row">
+      <view class="story__row story__row--topic">
         <text class="story__topic {{item.topic ? '' : 'text-secondary'}}">{{item.topic || '选择话题'}}</text>
-        <text class="story__arrow text-secondary">›</text>
+        <t-icon name="chevron-right" size="40rpx" />
       </view>
     </picker>
 
-    <view class="story__row">
+    <view class="story__row story__row--ops">
       <text
         wx:if="{{recordingIndex !== index}}"
         class="story__rec text-primary"
@@ -28,5 +28,8 @@
     </view>
   </view>
 
-  <view wx:if="{{stories.length < 5}}" class="story__add" bindtap="onAddStory">＋ 添加故事</view>
+  <view wx:if="{{stories.length < 5}}" class="story__add" bindtap="onAddStory">
+    <t-icon name="add" size="36rpx" />
+    <text>添加故事</text>
+  </view>
 </view>

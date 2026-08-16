@@ -11,11 +11,11 @@
   justify-content: space-between;
   padding: 16rpx 0;
 }
+.story__row--ops {
+  justify-content: flex-start;
+}
 .story__topic {
   font-size: 28rpx;
-}
-.story__arrow {
-  font-size: 30rpx;
 }
 .story__rec {
   font-size: 26rpx;
@@ -32,7 +32,10 @@
   margin-left: 24rpx;
 }
 .story__add {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
   padding: 24rpx;
   color: var(--color-primary);
   background: #ffffff;

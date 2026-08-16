@@ -1,4 +1,6 @@
 {
-  "navigationBarTitleText": "我的故事",
-  "usingComponents": {}
+  "navigationBarTitleText": "语音故事",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
 }
