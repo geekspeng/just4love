@@ -7,7 +7,7 @@
       data-id="{{item.id}}"
       bindtap="onTapSession"
     >
-      <t-avatar class="message__avatar" image="{{item.avatar}}" shape="circle" size="88" />
+      <t-avatar class="message__avatar" image="{{item.avatar}}" shape="circle" size="88rpx" />
       <view class="message__body">
         <view class="message__name">{{item.nickname}}</view>
         <view class="message__last text-secondary">{{item.lastMessage}}</view>
