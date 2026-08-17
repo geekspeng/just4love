@@ -30,4 +30,19 @@ describe('cloudfunctions/bindPhone', () => {
     const emptyOpenapi = { phonenumber: { getPhoneNumber: async () => ({}) } };
     expect((await bindPhoneByOpenid('openid-a', 'bad', db, emptyOpenapi)).error).toBe('phone code invalid');
   });
+
+  test('openapi 调用异常时记录错误日志（暴露 config.json 权限缺失等真实原因）', async () => {
+    const db = createMockDb();
+    await loginWithOpenid('openid-a', db);
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const scopeErrOpenapi = {
+      phonenumber: {
+        getPhoneNumber: async () => { throw new Error('api scope is not declared in config.json'); },
+      },
+    };
+    const res = await bindPhoneByOpenid('openid-a', 'any', db, scopeErrOpenapi);
+    expect(res.error).toBe('phone code invalid');
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
+  });
 });

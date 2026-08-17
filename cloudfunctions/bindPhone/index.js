@@ -21,6 +21,8 @@ async function bindPhoneByOpenid(openid, code, db, openapi) {
     const res = await openapi.phonenumber.getPhoneNumber({ code });
     phone = (res && res.phoneInfo && res.phoneInfo.phoneNumber) || '';
   } catch (e) {
+    // 记录真实原因（如 config.json 未声明 phonenumber.getPhoneNumber 权限、主体无接口权限）
+    console.error('[bindPhone] openapi getPhoneNumber failed:', e);
     phone = '';
   }
   if (!phone) return { error: 'phone code invalid' };
