@@ -26,3 +26,6 @@ Thumbs.db
 # 日志
 *.log
 npm-debug.log*
+
+# Playwright CLI 本地会话数据
+.playwright-cli/
