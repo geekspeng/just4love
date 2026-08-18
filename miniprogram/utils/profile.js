@@ -17,7 +17,7 @@ function createEmptyProfile(user) {
     },
     about: {
       aboutMe: '', aboutYou: '', loveGoal: '', emotionalStatus: '',
-      height: null, education: '', job: '', city: '', hometown: '', school: '',
+      height: null, weight: null, education: '', job: '', city: '', hometown: '', school: '',
       familyBackground: [],
       smoke: '', drink: '', gamble: '',
     },

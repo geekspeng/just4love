@@ -20,14 +20,13 @@
              bindinput="onInput" data-path="basic.nickname" placeholder="请输入昵称" />
     </view>
 
-    <picker range="{{genders}}" disabled="{{draft.basicInit}}" bindchange="onPickGender">
-      <t-cell title="性别" note="{{draft.basic.gender || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="性别" note="{{draft.basic.gender || '请选择'}}" arrow hover
+            class="{{draft.basicInit ? 'edit__cell--locked' : ''}}"
+            bind:tap="onOpenPicker" data-field="basic.gender" />
 
-    <picker mode="date" end="{{today}}" value="{{draft.basic.birthday}}"
-            disabled="{{draft.basicInit}}" bindchange="onPickBirthday">
-      <t-cell title="生日" note="{{draft.basic.birthday ? draft.basic.birthday + (draft.basic.constellation ? '（' + draft.basic.constellation + '）' : '') : '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="生日" note="{{draft.basic.birthday ? draft.basic.birthday + (draft.basic.constellation ? '（' + draft.basic.constellation + '）' : '') : '请选择'}}" arrow hover
+            class="{{draft.basicInit ? 'edit__cell--locked' : ''}}"
+            bind:tap="onOpenBirthday" />
 
     <view class="edit__row">
       <text class="edit__label">个性签名</text>
@@ -48,33 +47,29 @@
     <textarea class="edit__textarea" maxlength="500" value="{{draft.about.aboutYou}}"
               bindinput="onInput" data-path="about.aboutYou" placeholder="描述你期待的另一半…" />
 
-    <picker range="{{loveGoals}}" bindchange="onPickOption" data-field="about.loveGoal" data-options="loveGoals">
-      <t-cell title="恋爱目标" note="{{draft.about.loveGoal || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="恋爱目标" note="{{draft.about.loveGoal || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.loveGoal" />
 
-    <picker range="{{emotionalStatus}}" bindchange="onPickOption" data-field="about.emotionalStatus" data-options="emotionalStatus">
-      <t-cell title="情感状态" note="{{draft.about.emotionalStatus || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="情感状态" note="{{draft.about.emotionalStatus || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.emotionalStatus" />
 
-    <picker range="{{heightRange}}" value="{{draft.about.height - 140}}" bindchange="onPickHeight">
-      <t-cell title="身高" note="{{draft.about.height ? draft.about.height + 'cm' : '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="身高" note="{{draft.about.height ? draft.about.height + 'cm' : '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.height" />
 
-    <picker range="{{educations}}" bindchange="onPickOption" data-field="about.education" data-options="educations">
-      <t-cell title="学历" note="{{draft.about.education || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="体重" note="{{draft.about.weight ? draft.about.weight + 'kg' : '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.weight" />
 
-    <picker range="{{jobs}}" bindchange="onPickOption" data-field="about.job" data-options="jobs">
-      <t-cell title="职业" note="{{draft.about.job || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="学历" note="{{draft.about.education || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.education" />
 
-    <picker mode="region" bindchange="onRegion" data-field="about.city">
-      <t-cell title="现居地" note="{{draft.about.city || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="职业" note="{{draft.about.job || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.job" />
 
-    <picker mode="region" bindchange="onRegion" data-field="about.hometown">
-      <t-cell title="家乡" note="{{draft.about.hometown || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="现居地" note="{{draft.about.city || '请选择'}}" arrow hover
+            bind:tap="onOpenRegion" data-field="about.city" />
+
+    <t-cell title="家乡" note="{{draft.about.hometown || '请选择'}}" arrow hover
+            bind:tap="onOpenRegion" data-field="about.hometown" />
 
     <view class="edit__row">
       <text class="edit__label">学校</text>
@@ -97,37 +92,25 @@
     </view>
   </view>
 
-  <!-- 吸烟/喝酒/打牌：三个独立 picker -->
+  <!-- 吸烟/喝酒/打牌：共享 t-picker -->
   <view class="card edit__card">
-    <picker range="{{habits}}" bindchange="onPickHabit" data-field="about.smoke">
-      <t-cell title="吸烟" note="{{draft.about.smoke || '请选择'}}" arrow hover />
-    </picker>
-    <picker range="{{habits}}" bindchange="onPickHabit" data-field="about.drink">
-      <t-cell title="喝酒" note="{{draft.about.drink || '请选择'}}" arrow hover />
-    </picker>
-    <picker range="{{habits}}" bindchange="onPickHabit" data-field="about.gamble">
-      <t-cell title="打牌" note="{{draft.about.gamble || '请选择'}}" arrow hover />
-    </picker>
+    <t-cell title="吸烟" note="{{draft.about.smoke || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.smoke" />
+    <t-cell title="喝酒" note="{{draft.about.drink || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.drink" />
+    <t-cell title="打牌" note="{{draft.about.gamble || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="about.gamble" />
   </view>
 
   <!-- 隐私字段 -->
   <view class="card edit__card">
     <view class="edit__title">隐私信息 <text class="text-secondary edit__hint">保存后默认对他人隐藏</text></view>
-    <view class="edit__row">
-      <text class="edit__label">房产</text>
-      <input class="edit__input" maxlength="20" value="{{draft.privacy.asset.house}}"
-             bindinput="onInput" data-path="privacy.asset.house" placeholder="如：有房无贷" />
-    </view>
-    <view class="edit__row">
-      <text class="edit__label">车辆</text>
-      <input class="edit__input" maxlength="20" value="{{draft.privacy.asset.car}}"
-             bindinput="onInput" data-path="privacy.asset.car" placeholder="如：有车" />
-    </view>
-    <view class="edit__row">
-      <text class="edit__label">收入</text>
-      <input class="edit__input" maxlength="20" value="{{draft.privacy.asset.income}}"
-             bindinput="onInput" data-path="privacy.asset.income" placeholder="如：20-30万/年" />
-    </view>
+    <t-cell title="房产" note="{{draft.privacy.asset.house || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="privacy.asset.house" />
+    <t-cell title="车辆" note="{{draft.privacy.asset.car || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="privacy.asset.car" />
+    <t-cell title="收入" note="{{draft.privacy.asset.income || '请选择'}}" arrow hover
+            bind:tap="onOpenPicker" data-field="privacy.asset.income" />
     <view class="edit__row">
       <text class="edit__label">联系电话</text>
       <input class="edit__input edit__input--phone" type="number" maxlength="11"
@@ -144,4 +127,25 @@
   </view>
 
   <t-button class="edit__save-btn" theme="primary" block loading="{{saving}}" disabled="{{saving}}" bind:tap="onSave">保存</t-button>
+
+  <!-- 共享单列选择器（PICKER_DEFS 驱动） -->
+  <t-picker visible="{{pickerVisible}}" title="{{pickerTitle}}" value="{{pickerValue}}"
+            bind:confirm="onPickerConfirm" bind:cancel="onPickerCancel"
+            bind:visible-change="onPickerVisibleChange">
+    <t-picker-item options="{{pickerOptions}}" />
+  </t-picker>
+
+  <!-- 生日 -->
+  <t-date-time-picker visible="{{birthdayVisible}}" mode="date" format="YYYY-MM-DD"
+                      title="生日" start="1930-01-01" end="{{today}}"
+                      value="{{draft.basic.birthday || today}}"
+                      bind:confirm="onBirthdayConfirm" bind:cancel="onBirthdayCancel" />
+
+  <!-- 现居地/家乡：双列联动 -->
+  <t-picker visible="{{regionVisible}}" title="{{regionTitle}}" value="{{regionValue}}"
+            bind:confirm="onRegionConfirm" bind:cancel="onRegionCancel" bind:pick="onRegionPick"
+            bind:visible-change="onRegionVisibleChange">
+    <t-picker-item options="{{regionProvinces}}" />
+    <t-picker-item options="{{regionCities}}" />
+  </t-picker>
 </view>

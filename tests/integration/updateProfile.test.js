@@ -62,6 +62,20 @@ describe('cloudfunctions/updateProfile', () => {
     expect(bad2.error).toBe('invalid about.familyBackground');
   });
 
+  test('about.weight：number 入库、非 number 拒绝（与 height 同型）', async () => {
+    const db = createMockDb();
+    await loginWithOpenid('openid-a', db);
+    const bad = await updateProfileByOpenid('openid-a', { about: { weight: '50' } }, db);
+    expect(bad.error).toBe('invalid about.weight');
+    const ok = await updateProfileByOpenid('openid-a', { about: { weight: 50, height: 165 } }, db);
+    expect(ok.error).toBeUndefined();
+    expect(ok.profile.about.weight).toBe(50);
+    expect(ok.profile.about.height).toBe(165);
+    const cleared = await updateProfileByOpenid('openid-a', { about: { weight: null } }, db);
+    expect(cleared.error).toBeUndefined();
+    expect(cleared.profile.about.weight).toBeNull();
+  });
+
   test('album 超 5 项或 category 重复拒绝；合法 album 整段替换', async () => {
     const db = createMockDb();
     await loginWithOpenid('openid-a', db);

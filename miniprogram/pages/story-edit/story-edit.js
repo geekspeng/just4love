@@ -4,13 +4,20 @@ const { ensureLogin } = require('../../utils/auth.js');
 const { uploadAudio } = require('../../utils/upload.js');
 const { STORY_TOPICS } = require('../../utils/options.js');
 
+// 话题选项：值为文案（选中即入库）
+const TOPIC_OPTIONS = STORY_TOPICS.map((x) => ({ label: x, value: x }));
+
 Page({
   data: {
-    topics: STORY_TOPICS,
     stories: [],        // [{topic, audioFileID}]
     recordingIndex: -1, // 正在录音的槽位
     playingIndex: -1,
     userId: '',
+    // 共享话题 t-picker 状态
+    topicVisible: false,
+    topicIndex: -1,     // 正在选话题的故事槽位
+    topicValue: [],
+    topicOptions: TOPIC_OPTIONS,
   },
 
   async onLoad() {
@@ -55,15 +62,33 @@ Page({
     this.setData({ stories: this.data.stories.concat([{ topic: '', audioFileID: '' }]) });
   },
 
-  // 每行话题选择（话题需唯一）
-  onPickTopic(e) {
+  // 每行话题选择（话题需唯一）：打开共享 t-picker
+  onOpenTopic(e) {
     const idx = Number(e.currentTarget.dataset.index);
-    const topic = STORY_TOPICS[Number(e.detail.value)];
+    this.setData({
+      topicIndex: idx,
+      topicValue: this.data.stories[idx].topic ? [this.data.stories[idx].topic] : [],
+      topicVisible: true,
+    });
+  },
+
+  onTopicConfirm(e) {
+    const idx = this.data.topicIndex;
+    const topic = (e.detail.value || [])[0];
     if (this.data.stories.some((s, i) => i !== idx && s.topic === topic)) {
       wx.showToast({ title: '该话题已选择', icon: 'none' });
       return;
     }
-    this.setData({ ['stories[' + idx + '].topic']: topic });
+    this.setData({ ['stories[' + idx + '].topic']: topic, topicVisible: false });
+  },
+
+  onTopicCancel() {
+    this.setData({ topicVisible: false });
+  },
+
+  // 遮罩/外部关闭（autoClose）时同步页面状态
+  onTopicVisibleChange(e) {
+    this.setData({ topicVisible: !!(e.detail && e.detail.visible) });
   },
 
   onTapRecord(e) {

@@ -9,7 +9,7 @@ const FULL = {
   },
   about: {
     aboutMe: '喜欢旅行和美食', aboutYou: '希望你成熟稳重', loveGoal: '先认真谈场恋爱再说',
-    emotionalStatus: '单身未婚', height: 165, education: '本科', job: '互联网/IT',
+    emotionalStatus: '单身未婚', height: 165, weight: 50, education: '本科', job: '互联网/IT',
     city: '广东省 深圳市', hometown: '湖南省 长沙市', school: '湖南大学',
     familyBackground: ['独生子女', '父母有退休金'], smoke: '从不', drink: '偶尔', gamble: '从不',
   },
@@ -40,6 +40,7 @@ describe('components/profile-card', () => {
     const text = rows.dom.textContent;
     expect(text).toContain('小鱼(女) · 单身未婚');
     expect(text).toContain('165cm');
+    expect(text).toContain('50kg');
     expect(text).toContain('双子座');
     expect(text).toContain('广东省 深圳市');
     expect(text).toContain('湖南大学 · 本科');
@@ -68,6 +69,7 @@ describe('components/profile-card', () => {
     expect(html).not.toContain('家庭背景');
     const rows = comp.querySelector('.pc__rows');
     expect(rows.dom.textContent).toContain('小明');
+    expect(rows.dom.textContent).not.toContain('kg'); // 无体重时不出现体重行
     expect(rows.dom.textContent).not.toContain('undefined');
     expect(rows.dom.textContent).not.toContain('null');
     comp.detach();

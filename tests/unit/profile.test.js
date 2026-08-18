@@ -9,6 +9,7 @@ describe('utils/profile', () => {
     expect(p.basicInit).toBe(false);
     expect(p.basic.guestNo).toBe('J0007');
     expect(p.about.height).toBeNull();
+    expect(p.about.weight).toBeNull();
     expect(p.about.familyBackground).toEqual([]);
     expect(p.privacy.asset).toEqual({ house: '', car: '', income: '' });
     expect(p.album).toEqual([]);

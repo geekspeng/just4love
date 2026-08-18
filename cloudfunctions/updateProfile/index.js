@@ -8,7 +8,7 @@ const PATCH_KEYS = ['basic', 'about', 'privacy', 'album', 'stories', 'tags'];
 const LOCKED_BASIC = ['nickname', 'gender', 'birthday', 'constellation'];
 const BASIC_KEYS = LOCKED_BASIC.concat(['avatarFileID', 'signature']);
 const ABOUT_KEYS = [
-  'aboutMe', 'aboutYou', 'loveGoal', 'emotionalStatus', 'height', 'education',
+  'aboutMe', 'aboutYou', 'loveGoal', 'emotionalStatus', 'height', 'weight', 'education',
   'job', 'city', 'hometown', 'school', 'familyBackground', 'smoke', 'drink', 'gamble',
 ];
 const PRIVACY_KEYS = { asset: ['house', 'car', 'income'], contact: ['phone', 'wechat'] };
@@ -64,11 +64,11 @@ function sanitizePatch(patch, existing) {
     for (const key of ABOUT_KEYS) {
       if (!(key in a)) continue;
       const v = a[key];
-      if (key === 'height') {
+      if (key === 'height' || key === 'weight') {
         if (v !== null && (typeof v !== 'number' || !Number.isFinite(v))) {
-          return { error: 'invalid about.height' };
+          return { error: 'invalid about.' + key };
         }
-        na.height = v;
+        na[key] = v;
       } else if (key === 'familyBackground') {
         if (!isStrArray(v, FAMILY_MAX)) return { error: 'invalid about.familyBackground' };
         na[key] = v;

@@ -24,6 +24,12 @@ describe('utils/options', () => {
     expect(o.JOBS.length).toBeGreaterThanOrEqual(10);
   });
 
+  test('房产/车辆/收入选项与规格一致', () => {
+    expect(o.HOUSE).toEqual(['与家人同住', '有房无贷', '有房有贷', '租房暂无房']);
+    expect(o.CAR).toEqual(['有车', '暂无']);
+    expect(o.INCOME).toEqual(['10万以下', '10-20万', '20-30万', '30-50万', '50-100万', '100万以上']);
+  });
+
   test('相册 5 分类与规格一致', () => {
     expect(o.ALBUM_CATEGORIES).toEqual([
       '日常生活', '兴趣爱好', '旅行经历', '家有萌宠', '健身运动',

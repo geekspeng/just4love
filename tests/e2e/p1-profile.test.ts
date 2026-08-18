@@ -69,11 +69,12 @@ interface BasicShape {
   nickname: string;
   gender: string;
   birthday: string;
+  signature: string;
 }
 interface DraftShape {
   basicInit: boolean;
   basic: BasicShape;
-  about: { city: string };
+  about: { city: string; weight: number | null };
 }
 
 describe('P1 登录与资料 E2E（真实云函数）', () => {
@@ -81,7 +82,8 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
   let mp: MiniProgram;
   // 跨用例共享：it3 保存的值供 it5/it7 断言云端数据一致性
   let savedNickname = '';
-  let savedCity = '';
+  let savedSignature = '';
+  const savedRegion = '广东省 深圳市';
 
   beforeAll(async () => {
     session = await connectOrLaunch();
@@ -117,16 +119,19 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
     await navTo(mp, '/pages/profile-edit/profile-edit');
     await waitForData(mp, 'draft');
     const d = await pageData<{
-      loveGoals: string[];
       familyBackground: string[];
-      heightRange: number[];
-      draft: { userId: string; basic: object };
+      pickerVisible: boolean;
+      pickerOptions: { label: string; value: string | number }[];
+      draft: { userId: string; basic: object; about: { weight: number | null } };
     }>(mp);
-    expect(d.loveGoals).toHaveLength(4);
     expect(d.familyBackground).toHaveLength(12);
-    expect(d.heightRange[0]).toBe(140);
+    // 共享 t-picker 初始未打开（选项池由 PICKER_DEFS 在打开时注入）
+    expect(d.pickerVisible).toBe(false);
+    expect(d.pickerOptions).toEqual([]);
     expect(d.draft).toBeTruthy();
     expect(d.draft.basic).toBeTruthy();
+    // 体重字段随模板补齐（重复运行时云端可能已存数字，只断言键存在）
+    expect(Object.prototype.hasOwnProperty.call(d.draft.about, 'weight')).toBe(true);
     // 真实链路：草稿 userId 来自 login 返回的 user（云端无资料时也非空）
     const cached = await runInApp<{ userId: string }>(mp, () => wx.getStorageSync('j4l_user'));
     expect(d.draft.userId).toBe(cached.userId);
@@ -143,36 +148,53 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
       detail: { value: nickname },
     });
     if (!d0.basic.gender) {
-      await drivePage(mp, 'onPickGender', { detail: { value: 0 } });
+      await drivePage(mp, 'onOpenPicker', { currentTarget: { dataset: { field: 'basic.gender' } } });
+      await drivePage(mp, 'onPickerConfirm', { detail: { value: ['女'] } });
     }
     if (!d0.basic.birthday) {
-      await drivePage(mp, 'onPickBirthday', { detail: { value: '1995-06-15' } });
+      await drivePage(mp, 'onOpenBirthday', {});
+      await drivePage(mp, 'onBirthdayConfirm', { detail: { value: '1995-06-15' } });
     }
-    // 唯一值证明本次真实写入云端（而非缓存/旧数据回显）
-    savedCity = 'E2E-' + Date.now();
+    // 共享 t-picker 链路：体重（数字入库）与房产（隐私下拉）
+    await drivePage(mp, 'onOpenPicker', { currentTarget: { dataset: { field: 'about.weight' } } });
+    await drivePage(mp, 'onPickerConfirm', { detail: { value: [50] } });
+    await drivePage(mp, 'onOpenPicker', { currentTarget: { dataset: { field: 'privacy.asset.house' } } });
+    await drivePage(mp, 'onPickerConfirm', { detail: { value: ['有房无贷'] } });
+    // 双列联动 t-picker 链路：现居地 省+市
+    await drivePage(mp, 'onOpenRegion', { currentTarget: { dataset: { field: 'about.city' } } });
+    await drivePage(mp, 'onRegionConfirm', { detail: { value: ['广东省', '深圳市'] } });
+    // 唯一值证明本次真实写入云端（而非缓存/旧数据回显）——签名仍是自由输入
+    savedSignature = 'E2E-' + Date.now();
     await drivePage(mp, 'onInput', {
-      currentTarget: { dataset: { path: 'about.city' } },
-      detail: { value: savedCity },
+      currentTarget: { dataset: { path: 'basic.signature' } },
+      detail: { value: savedSignature },
     });
     savedNickname = nickname;
 
     // 触发真实保存：onSave → updateProfile 云函数（成功后页面的 navigateBack 因
     // reLaunch 后无上一页而静默失败，不作为成功信号）
     await drivePage(mp, 'onSave', {});
-    // 直接轮询云端落库（比 UI 返回信号更硬的业务验证）
+    // 直接轮询云端落库（比 UI 返回信号更硬的业务验证）：含新字段 weight/house/region
     await waitFor(async () => {
       const cur = await callCloud(mp, 'getMyProfile');
-      return !!(cur && cur.profile && cur.profile.about && cur.profile.about.city === savedCity);
+      return !!(cur && cur.profile && cur.profile.about
+        && cur.profile.about.city === savedRegion
+        && cur.profile.about.weight === 50
+        && cur.profile.basic && cur.profile.basic.signature === savedSignature
+        && cur.profile.privacy && cur.profile.privacy.asset
+        && cur.profile.privacy.asset.house === '有房无贷');
     }, 20000);
 
     // 重新进入（reLaunch 重建页面实例）：getMyProfile 从云端取回刚才保存的资料
     await navTo(mp, '/pages/profile-edit/profile-edit');
     await waitFor(async () => {
       const d = await pageData<{ about: { city: string } } | null>(mp, 'draft');
-      return !!(d && d.about && d.about.city === savedCity);
+      return !!(d && d.about && d.about.city === savedRegion);
     }, 15000);
     const d1 = await pageData<DraftShape>(mp, 'draft');
-    expect(d1.about.city).toBe(savedCity);
+    expect(d1.about.city).toBe(savedRegion);
+    expect(d1.about.weight).toBe(50); // 数字经共享 t-picker 入库后回显
+    expect(d1.basic.signature).toBe(savedSignature);
     expect(d1.basic.nickname).toBe(nickname);
     expect(d1.basicInit).toBe(true); // 昵称/性别/生日齐备后云端置位
   }, 60000);
@@ -198,7 +220,8 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
 
     const after = await callCloud(mp, 'getMyProfile');
     expect(after.profile.basic.nickname).toBe(savedNickname);
-    expect(after.profile.about.city).toBe(savedCity);
+    expect(after.profile.basic.signature).toBe(savedSignature);
+    expect(after.profile.about.city).toBe(savedRegion);
   }, T);
 
   it('我的页：菜单完整 + 真实登录态 + 云端资料概览', async () => {

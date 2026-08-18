@@ -2,12 +2,10 @@
   <view class="text-secondary story__tip">录制最多 5 段语音故事，每段 ≤60 秒</view>
 
   <view class="card story__item" wx:for="{{stories}}" wx:key="index">
-    <picker range="{{topics}}" value="{{item.topic}}" bindchange="onPickTopic" data-index="{{index}}">
-      <view class="story__row story__row--topic">
-        <text class="story__topic {{item.topic ? '' : 'text-secondary'}}">{{item.topic || '选择话题'}}</text>
-        <t-icon name="chevron-right" size="40rpx" />
-      </view>
-    </picker>
+    <view class="story__row story__row--topic" bindtap="onOpenTopic" data-index="{{index}}">
+      <text class="story__topic {{item.topic ? '' : 'text-secondary'}}">{{item.topic || '选择话题'}}</text>
+      <t-icon name="chevron-right" size="40rpx" />
+    </view>
 
     <view class="story__row story__row--ops">
       <text
@@ -32,4 +30,11 @@
     <t-icon name="add" size="36rpx" />
     <text>添加故事</text>
   </view>
+
+  <!-- 共享话题选择器 -->
+  <t-picker visible="{{topicVisible}}" title="选择话题" value="{{topicValue}}"
+            bind:confirm="onTopicConfirm" bind:cancel="onTopicCancel"
+            bind:visible-change="onTopicVisibleChange">
+    <t-picker-item options="{{topicOptions}}" />
+  </t-picker>
 </view>

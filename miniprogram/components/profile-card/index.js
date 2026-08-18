@@ -19,6 +19,7 @@ function buildDisplay(p) {
   push('昵称', nameParts.join(' · '));
   if (basic.birthday) push('年龄', formatAge(Number(basic.birthday.slice(0, 4))));
   push('身高', about.height ? about.height + 'cm' : '');
+  push('体重', about.weight ? about.weight + 'kg' : '');
   push('星座', basic.constellation);
   push('家乡', about.hometown);
   push('现居地', about.city);

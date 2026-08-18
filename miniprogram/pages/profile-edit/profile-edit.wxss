@@ -51,6 +51,10 @@
   font-size: 22rpx;
   padding-top: 12rpx;
 }
+/* basicInit 后锁定的选择 cell（性别/生日）：置灰且 tap 被守卫拦截 */
+.edit__cell--locked {
+  opacity: 0.5;
+}
 .edit__avatar-btn {
   padding: 0;
   margin: 0;

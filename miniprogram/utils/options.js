@@ -25,6 +25,10 @@ const JOBS = [
   '商业/贸易', '文化传媒', '自由职业', '学生', '其他',
 ];
 
+const HOUSE = ['与家人同住', '有房无贷', '有房有贷', '租房暂无房'];
+const CAR = ['有车', '暂无'];
+const INCOME = ['10万以下', '10-20万', '20-30万', '30-50万', '50-100万', '100万以上'];
+
 const ALBUM_CATEGORIES = ['日常生活', '兴趣爱好', '旅行经历', '家有萌宠', '健身运动'];
 
 const TAG_POOLS = {
@@ -49,5 +53,6 @@ const LIMITS = {
 
 module.exports = {
   LOVE_GOALS, EMOTIONAL_STATUS, FAMILY_BACKGROUND, HABITS, EDUCATIONS, JOBS,
+  HOUSE, CAR, INCOME,
   ALBUM_CATEGORIES, TAG_POOLS, STORY_TOPICS, LIMITS,
 };
