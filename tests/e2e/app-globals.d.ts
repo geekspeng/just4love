@@ -23,6 +23,7 @@ declare const wx: {
   getStorageSync: (key: string) => any;
   clearStorageSync: () => void;
   // 导航 API（本机实测 navigateTo 挂死，reLaunch/redirectTo/switchTab/navigateBack 可用）
+  navigateTo: (opt: NavOption) => void;
   reLaunch: (opt: NavOption) => void;
   redirectTo: (opt: NavOption) => void;
   switchTab: (opt: NavOption) => void;

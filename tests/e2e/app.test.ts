@@ -63,19 +63,28 @@ describe('just4love E2E', () => {
   }, T);
 
   it('「我的」页菜单交互可触发（onTapMenu）', async () => {
-    const ok = await runInApp(mp, () => {
-      const page = getCurrentPages().slice(-1)[0] as unknown as {
-        onTapMenu: (e: { currentTarget: { dataset: { id: string } } }) => void;
+    // 先 stub wx.navigateTo 再驱动 onTapMenu：真导航走 wx.navigateTo，而该 API
+    // 在本机 DevTools 上挂死（success/fail 均不回调，10s 后 automator 报
+    // Uncaught [object Object]，会砸进后续用例——见 helpers navTo 注释）。
+    // 改为验证分发目标 URL，不真跳页。
+    const routed = await runInApp<{ url: string } | null>(mp, () => {
+      const page = getCurrentPages().slice(-1)[0];
+      const orig = wx.navigateTo;
+      let captured: { url: string } | null = null;
+      wx.navigateTo = (opt: NavOption) => {
+        captured = { url: opt.url || '' };
       };
-      page.onTapMenu({ currentTarget: { dataset: { id: 'edit' } } });
-      return true;
+      try {
+        page.onTapMenu({ currentTarget: { dataset: { id: 'edit' } } });
+      } finally {
+        wx.navigateTo = orig;
+      }
+      return captured;
     });
-    expect(ok).toBe(true);
+    expect(routed).toEqual({ url: '/pages/profile-edit/profile-edit' });
   }, T);
 
   it('切回「推荐」tab', async () => {
-    // 上一用例的 onTapMenu 已触发 navigateTo，稍候其完成再 switchTab，避免竞态
-    await new Promise((r) => setTimeout(r, 800));
     await mp.switchTab('/pages/recommend/recommend');
     expect(await currentRoute(mp)).toContain('recommend');
   }, T);
