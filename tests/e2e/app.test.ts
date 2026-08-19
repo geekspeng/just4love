@@ -31,7 +31,7 @@ describe('just4love E2E', () => {
   }, T);
 
   it('「遇见」页列表为真实数据（CardVO 脱敏：无 privacy/openid 字段）', async () => {
-    expect(await countSelector(mp, '.recommend__list')).toBe(1);
+    expect(await countSelector(mp, '.recommend')).toBe(1);
     const list = await pageData<any[]>(mp, 'list');
     expect(Array.isArray(list)).toBe(true); // 云调用在途时为初始 []，结构性断言不赌数据量
     for (const item of list) {
@@ -82,7 +82,7 @@ describe('just4love E2E', () => {
     expect(routed).toEqual({ url: '/pages/profile-edit/profile-edit' });
   }, T);
 
-  it('切回「推荐」tab', async () => {
+  it('切回「遇见」tab', async () => {
     await mp.switchTab('/pages/recommend/recommend');
     expect(await currentRoute(mp)).toContain('recommend');
   }, T);

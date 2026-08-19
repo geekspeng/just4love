@@ -286,7 +286,7 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
   it('「遇见」tab 已接入真实列表（结构性断言）', async () => {
     await mp.switchTab('/pages/recommend/recommend');
     // 列表数量随真实环境数据变化，只断言容器与 data 形状
-    expect(await countSelector(mp, '.recommend__list')).toBe(1);
+    expect(await countSelector(mp, '.recommend')).toBe(1);
     const list = await pageData<any[]>(mp, 'list');
     expect(Array.isArray(list)).toBe(true);
   }, T);

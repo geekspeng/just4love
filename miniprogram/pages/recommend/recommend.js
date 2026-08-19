@@ -27,14 +27,18 @@ Page({
     this.loadList(this.data.page + 1);
   },
 
-  async loadList(page) {
-    if (this.data.loading) return this.data.page;
+  async loadList(page, force) {
+    // 防重入：普通调用（翻页/下拉）在途时直接跳过；
+    // force=true（筛选变更）放行并发，用令牌作废旧请求的结果
+    if (this.data.loading && !force) return page;
+    const seq = (this._seq = (this._seq || 0) + 1);
     this.setData({ loading: true, loadError: false });
     const res = await callFunction('listProfiles', {
       filter: this.data.filter,
       page,
       pageSize: PAGE_SIZE,
     });
+    if (seq !== this._seq) return page; // 已被更新的请求取代，结果丢弃
     if (!res || res.error) {
       this.setData({ loading: false, loadError: true });
       return page;
@@ -48,10 +52,10 @@ Page({
     return res.page;
   },
 
-  // filter-panel 应用/重置：回到第 1 页重查
+  // filter-panel 应用/重置：回到第 1 页重查（force 绕过在途防重入，令牌作废旧结果）
   onFilterChange(e) {
     this.setData({ filter: (e.detail && e.detail.filter) || {} });
-    this.loadList(1);
+    this.loadList(1, true);
   },
 
   // 卡片整体点击 → 详情（详情页负责配额/登录引导）
