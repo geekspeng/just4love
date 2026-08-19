@@ -1,39 +1,9 @@
-/* profile-detail —— 详情页（按钮组样式沿用 profile-card 的 pc__btn 视觉基调） */
+/* profile-detail —— 详情页（TDesign 承载状态/单元格/按钮；分享为原生 open-type 按钮样式对齐） */
 .detail__state {
-  text-align: center;
-  padding: 80rpx 40rpx;
-}
-.detail__state-title {
-  font-size: 32rpx;
-  font-weight: 600;
-  margin-bottom: 16rpx;
-}
-.detail__state-desc {
-  font-size: 26rpx;
-  margin-bottom: 40rpx;
-}
-.detail__state-btn {
-  background: var(--color-primary, #ff5a5f);
-  color: #ffffff;
-  font-size: 28rpx;
-  border-radius: 40rpx;
-  margin: 0 60rpx;
+  padding: 48rpx 0;
 }
 .detail__privacy {
-  padding: 24rpx;
-  font-size: 26rpx;
-}
-.detail__privacy-detail {
-  padding: 24rpx;
-}
-.detail__privacy-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 12rpx 0;
-  font-size: 28rpx;
-}
-.detail__privacy-label {
-  font-size: 26rpx;
+  margin-top: 20rpx;
 }
 .detail__actions {
   display: flex;
@@ -42,23 +12,6 @@
 }
 .detail__btn {
   flex: 1;
-  height: 84rpx;
-  line-height: 84rpx;
-  text-align: center;
-  border-radius: 42rpx;
-  font-size: 30rpx;
-}
-.detail__btn--pass {
-  border: 1rpx solid #e5e5e5;
-  color: #666666;
-}
-.detail__btn--chat {
-  border: 1rpx solid var(--color-primary, #ff5a5f);
-  color: var(--color-primary, #ff5a5f);
-}
-.detail__btn--like {
-  background: var(--color-primary, #ff5a5f);
-  color: #ffffff;
 }
 .detail__footer {
   display: flex;
@@ -69,16 +22,12 @@
 .detail__share {
   background: #ffffff;
   border: 1rpx solid #e5e5e5;
-  color: #333333;
+  color: var(--color-text-primary, #222222);
   font-size: 26rpx;
   border-radius: 32rpx;
   padding: 0 40rpx;
   line-height: 64rpx;
   height: 64rpx;
-}
-.detail__report {
-  font-size: 26rpx;
-  padding: 12rpx;
 }
 .detail__quota {
   text-align: center;

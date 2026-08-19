@@ -1,6 +1,10 @@
 {
   "navigationBarTitleText": "嘉宾详情",
   "usingComponents": {
-    "profile-card": "/components/profile-card/index"
+    "profile-card": "/components/profile-card/index",
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group"
   }
 }

@@ -1,60 +1,49 @@
 <view class="container detail">
   <!-- 游客：登录引导 -->
-  <view class="card detail__state" wx:if="{{needLogin}}">
-    <view class="detail__state-title">登录后查看完整资料</view>
-    <view class="detail__state-desc text-secondary">微信一键登录，每天可查看多位嘉宾资料</view>
-    <button class="detail__state-btn" bindtap="onLoginRetry">微信一键登录</button>
+  <view class="detail__state" wx:if="{{needLogin}}">
+    <t-empty description="登录后查看完整资料，每天可查看多位嘉宾资料">
+      <t-button slot="action" theme="primary" size="large" bind:tap="onLoginRetry">微信一键登录</t-button>
+    </t-empty>
   </view>
 
   <!-- 今日配额用尽 -->
-  <view class="card detail__state" wx:elif="{{quotaExceeded}}">
-    <view class="detail__state-title">今日查看次数已用完</view>
-    <view class="detail__state-desc text-secondary">明天再来；完成认证可提升每日查看次数</view>
+  <view class="detail__state" wx:elif="{{quotaExceeded}}">
+    <t-empty description="今日查看次数已用完，明天再来；完成认证可提升每日查看次数" />
   </view>
 
   <!-- 不存在 / 已下架 -->
-  <view class="card detail__state" wx:elif="{{notFound}}">
-    <view class="detail__state-title">嘉宾不存在或已下架</view>
+  <view class="detail__state" wx:elif="{{notFound}}">
+    <t-empty description="嘉宾不存在或已下架" />
   </view>
 
   <!-- 正常渲染 -->
   <block wx:elif="{{profile}}">
     <profile-card profile="{{profile}}" verified="{{verified}}" />
 
-    <!-- 隐私区：无明文（普通/认证视角）显示 🔒 占位；有明文（本人/管理员）展示 -->
-    <view class="card detail__privacy" wx:if="{{!profile.privacy}}">
-      <text class="text-secondary">🔒 联系方式与资产信息：征求同意后可见</text>
+    <!-- 隐私区：无明文（普通/认证视角）🔒 占位；有明文（本人/管理员）单元格明细 -->
+    <view class="detail__privacy" wx:if="{{!profile.privacy}}">
+      <t-cell left-icon="user-locked" title="联系方式与资产" note="征求同意后可见" />
     </view>
-    <view class="card detail__privacy-detail" wx:else>
-      <view class="detail__privacy-row">
-        <text class="detail__privacy-label text-secondary">手机号</text>
-        <text>{{profile.privacy.contact.phone || '未填写'}}</text>
-      </view>
-      <view class="detail__privacy-row">
-        <text class="detail__privacy-label text-secondary">微信</text>
-        <text>{{profile.privacy.contact.wechat || '未填写'}}</text>
-      </view>
-      <view class="detail__privacy-row">
-        <text class="detail__privacy-label text-secondary">房车情况</text>
-        <text>{{profile.privacy.asset.house || '未填写'}} · {{profile.privacy.asset.car || '未填写'}}</text>
-      </view>
-      <view class="detail__privacy-row">
-        <text class="detail__privacy-label text-secondary">收入</text>
-        <text>{{profile.privacy.asset.income || '未填写'}}</text>
-      </view>
+    <view class="detail__privacy" wx:else>
+      <t-cell-group theme="card">
+        <t-cell title="手机号" note="{{profile.privacy.contact.phone || '未填写'}}" />
+        <t-cell title="微信" note="{{profile.privacy.contact.wechat || '未填写'}}" />
+        <t-cell title="房车情况" note="{{profile.privacy.asset.house || '未填写'}} · {{profile.privacy.asset.car || '未填写'}}" />
+        <t-cell title="收入" note="{{profile.privacy.asset.income || '未填写'}}" />
+      </t-cell-group>
     </view>
 
     <!-- 按钮组：P3 激活（心动互配/聊天导流/无感），P2 占位 -->
     <view class="detail__actions">
-      <view class="detail__btn detail__btn--pass" bindtap="onPass">无感</view>
-      <view class="detail__btn detail__btn--chat" bindtap="onChat">聊天</view>
-      <view class="detail__btn detail__btn--like" bindtap="onLike">心动</view>
+      <t-button class="detail__btn" variant="outline" bind:tap="onPass">无感</t-button>
+      <t-button class="detail__btn" variant="outline" theme="primary" bind:tap="onChat">聊天</t-button>
+      <t-button class="detail__btn" theme="primary" bind:tap="onLike">心动</t-button>
     </view>
 
-    <!-- 更多菜单：分享（立即可用）+ 举报（P3 激活表单） -->
+    <!-- 更多菜单：分享（原生 open-type 裁定保留，样式对齐 t-button）+ 举报（P3 激活表单） -->
     <view class="detail__footer">
       <button class="detail__share" open-type="share">分享资料卡</button>
-      <text class="detail__report text-secondary" bindtap="onReport">举报</text>
+      <t-button class="detail__report" variant="text" size="small" bind:tap="onReport">举报</t-button>
     </view>
 
     <view class="detail__quota text-secondary" wx:if="{{quota && quota.limit > 0}}">
