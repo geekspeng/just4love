@@ -1,0 +1,128 @@
+// tests/integration/getProfileDetail.test.js —— getProfileDetail 云函数（配额/裁剪/日志）
+const { createMockDb } = require('../helpers/mock-db.js');
+const {
+  getProfileDetailByOpenid, toDateKey,
+} = require('../../cloudfunctions/getProfileDetail/index.js');
+
+function seed(quotas) {
+  const initial = {
+    users: {
+      uNormal: { _id: 'uNormal', openid: 'o-normal', role: 'normal', guestNo: 'J0002' },
+      uVerified: { _id: 'uVerified', openid: 'o-verified', role: 'verified', guestNo: 'J0003' },
+      uAdmin: { _id: 'uAdmin', openid: 'o-admin', role: 'admin', guestNo: 'J0004' },
+      uOwner: { _id: 'uOwner', openid: 'o-owner', role: 'normal', guestNo: 'J0005' },
+      uTV: { _id: 'uTV', openid: 'o-target-verified', role: 'verified', guestNo: 'J0006' },
+    },
+    profiles: {},
+    view_logs: {},
+  };
+  let seq = 0;
+  for (const openid of ['o-owner', 'o-target-verified', 'o-t3', 'o-t4', 'o-t5', 'o-t6']) {
+    const id = 'p-' + openid;
+    seq += 1;
+    initial.profiles[id] = {
+      _id: id, openid, userId: 'u-' + seq, basicInit: true,
+      basic: { guestNo: 'J000' + seq, nickname: '嘉宾' + seq, gender: '女', birthday: '1995-06-15', constellation: '双子座', avatarFileID: '', signature: '' },
+      about: { emotionalStatus: '单身未婚', height: 165, education: '本科', job: '互联网/IT', city: '广东省 深圳市' },
+      privacy: { asset: { house: '有房无贷', car: '有车', income: '10-20万' }, contact: { phone: '13800000000', wechat: 'wx-abc' } },
+      album: [], stories: [], tags: {}, createdAt: '2026-08-0' + seq + 'T00:00:00Z',
+    };
+  }
+  if (quotas) initial.config = { quotas: { _id: 'quotas', normal: quotas.normal, verified: quotas.verified } };
+  return createMockDb(initial);
+}
+
+describe('cloudfunctions/getProfileDetail', () => {
+  test('toDateKey 按东八区日界（UTC 20:30 → 次日）', () => {
+    expect(toDateKey(new Date(Date.UTC(2026, 7, 19, 20, 30)))).toBe('2026-08-20');
+    expect(toDateKey(new Date(Date.UTC(2026, 7, 19, 10, 30)))).toBe('2026-08-19');
+  });
+
+  test('游客（无 users 文档）→ login required，不查详情不写日志', async () => {
+    const db = seed();
+    const res = await getProfileDetailByOpenid('o-stranger', 'p-o-t3', db);
+    expect(res).toEqual({ error: 'login required' });
+    const logs = await db.collection('view_logs').where({ viewerOpenid: 'o-stranger' }).get();
+    expect(logs.data).toHaveLength(0);
+  });
+
+  test('profileId 不存在 → not found', async () => {
+    const res = await getProfileDetailByOpenid('o-normal', 'p-nope', seed());
+    expect(res).toEqual({ error: 'not found' });
+  });
+
+  test('本人查看：self=true、隐私明文、不占配额不写日志', async () => {
+    const db = seed();
+    const res = await getProfileDetailByOpenid('o-owner', 'p-o-owner', db);
+    expect(res.self).toBe(true);
+    expect(res.quota).toBeNull();
+    expect(res.profile.privacy.contact.phone).toBe('13800000000');
+    const logs = await db.collection('view_logs').where({ viewerOpenid: 'o-owner' }).get();
+    expect(logs.data).toHaveLength(0);
+  });
+
+  test('管理员：不限次、隐私明文、不写 view_logs', async () => {
+    const db = seed();
+    const res = await getProfileDetailByOpenid('o-admin', 'p-o-t3', db);
+    expect(res.quota).toEqual({ used: 0, limit: -1 });
+    expect(res.profile.privacy.asset.house).toBe('有房无贷');
+    const logs = await db.collection('view_logs').where({ viewerOpenid: 'o-admin' }).get();
+    expect(logs.data).toHaveLength(0);
+  });
+
+  test('普通用户：config 覆盖配额（normal=2），首看/复看/超额/日志写入', async () => {
+    const db = seed({ normal: 2, verified: 3 });
+    const first = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(first.profile._id).toBe('p-o-t3');
+    expect(first.profile.privacy).toBeUndefined(); // 隐私整段剔除
+    expect(first.quota).toEqual({ used: 1, limit: 2 });
+    expect(first.verified).toBe(false);
+
+    const second = await getProfileDetailByOpenid('o-normal', 'p-o-t4', db);
+    expect(second.quota).toEqual({ used: 2, limit: 2 });
+
+    // 重复看已看过的嘉宾：不重复计数、不写新日志、仍可看
+    const again = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(again.profile._id).toBe('p-o-t3');
+    expect(again.quota).toEqual({ used: 2, limit: 2 });
+
+    // 第 3 个不同嘉宾 → 超额
+    const third = await getProfileDetailByOpenid('o-normal', 'p-o-t5', db);
+    expect(third.error).toBe('quota exceeded');
+    expect(third.quota).toEqual({ used: 2, limit: 2 });
+
+    const logs = await db.collection('view_logs').where({ viewerOpenid: 'o-normal' }).get();
+    expect(logs.data).toHaveLength(2); // 只有两条真实查看
+    expect(logs.data[0].targetId).toBe('p-o-t3');
+    expect(logs.data[0].dateKey).toBe(toDateKey(new Date()));
+  });
+
+  test('认证用户：config 配额 verified=3，第 4 个不同嘉宾超额', async () => {
+    const db = seed({ normal: 2, verified: 3 });
+    for (const id of ['p-o-t3', 'p-o-t4', 'p-o-t5']) {
+      const r = await getProfileDetailByOpenid('o-verified', id, db);
+      expect(r.error).toBeUndefined();
+    }
+    const fourth = await getProfileDetailByOpenid('o-verified', 'p-o-t6', db);
+    expect(fourth.error).toBe('quota exceeded');
+    expect(fourth.quota).toEqual({ used: 3, limit: 3 });
+  });
+
+  test('config 缺失时用默认配额（normal=5）', async () => {
+    const db = seed(); // 无 config 集合
+    const ids = ['p-o-t3', 'p-o-t4', 'p-o-t5', 'p-o-t6', 'p-o-owner'];
+    for (const id of ids) {
+      const r = await getProfileDetailByOpenid('o-normal', id, db);
+      expect(r.error).toBeUndefined();
+    }
+    // 5 个不同嘉宾已看满，第 6 个（复用 o-t3 的库不足——直接再看 p-o-t3 不超额因已看过，改断言 quota.used）
+    const last = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(last.quota).toEqual({ used: 5, limit: 5 });
+  });
+
+  test('目标嘉宾角色为 verified → CardVO.verified=true', async () => {
+    const res = await getProfileDetailByOpenid('o-normal', 'p-o-target-verified', seed({ normal: 5, verified: 15 }));
+    expect(res.verified).toBe(true);
+    expect(res.profile.verified).toBe(true);
+  });
+});

@@ -1,0 +1,10 @@
+{
+  "name": "getProfileDetail",
+  "version": "1.0.0",
+  "description": "资料详情：登录/配额校验 + 查看日志 + 按角色裁剪隐私",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}
