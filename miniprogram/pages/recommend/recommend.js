@@ -1,33 +1,64 @@
-// pages/recommend/recommend.js —— 【推荐】tab（P2 改造为「遇见」列表，此处仍为 mock）
-const mockProfiles = [
-  {
-    basic: { guestNo: 'J0001', nickname: '小鱼', gender: '女', birthday: '1995-06-15', constellation: '双子座', avatarFileID: '', signature: '喜欢旅行' },
-    about: { height: 165, weight: 50, emotionalStatus: '单身未婚', job: '互联网/IT', city: '广东省 深圳市' },
-    tags: { hobby: ['旅行'] },
-  },
-  {
-    basic: { guestNo: 'J0002', nickname: '大刘', gender: '男', birthday: '1990-03-08', constellation: '双鱼座', avatarFileID: '', signature: '互联网从业' },
-    about: { height: 178, weight: 68, emotionalStatus: '单身未婚', job: '互联网/IT', city: '广东省 深圳市' },
-    tags: { hobby: ['游戏'] },
-  },
-];
+// pages/recommend/recommend.js —— 【遇见】tab：真实列表 + 筛选 + 分页（P2）
+// 数据来自 listProfiles 云函数；卡片 VO 已脱敏（无隐私/身份字段）。
+const { callFunction } = require('../../utils/request.js');
+
+const PAGE_SIZE = 10;
 
 Page({
   data: {
-    list: mockProfiles,
+    list: [],
+    page: 1,
+    hasMore: false,
+    loading: false,
+    filter: {},
+    loadError: false,
   },
 
   onLoad() {
-    // P2：调用 request.callFunction('listProfiles') 拉取真实列表
+    this.loadList(1);
   },
 
-  onLike(e) {
-    const { profile } = e.detail;
-    wx.showToast({ title: `心动了 ${profile.basic.nickname}`, icon: 'none' });
+  onPullDownRefresh() {
+    this.loadList(1).then(() => wx.stopPullDownRefresh());
   },
 
-  onPass(e) {
-    const { profile } = e.detail;
-    wx.showToast({ title: `已无感 ${profile.basic.nickname}`, icon: 'none' });
+  onReachBottom() {
+    if (!this.data.hasMore || this.data.loading) return;
+    this.loadList(this.data.page + 1);
+  },
+
+  async loadList(page) {
+    if (this.data.loading) return this.data.page;
+    this.setData({ loading: true, loadError: false });
+    const res = await callFunction('listProfiles', {
+      filter: this.data.filter,
+      page,
+      pageSize: PAGE_SIZE,
+    });
+    if (!res || res.error) {
+      this.setData({ loading: false, loadError: true });
+      return page;
+    }
+    this.setData({
+      list: page === 1 ? res.list : this.data.list.concat(res.list),
+      page: res.page,
+      hasMore: res.hasMore,
+      loading: false,
+    });
+    return res.page;
+  },
+
+  // filter-panel 应用/重置：回到第 1 页重查
+  onFilterChange(e) {
+    this.setData({ filter: (e.detail && e.detail.filter) || {} });
+    this.loadList(1);
+  },
+
+  // 卡片整体点击 → 详情（详情页负责配额/登录引导）
+  onCardTap(e) {
+    const p = e.detail.profile;
+    if (p && p._id) {
+      wx.navigateTo({ url: '/pages/profile-detail/profile-detail?id=' + p._id });
+    }
   },
 });

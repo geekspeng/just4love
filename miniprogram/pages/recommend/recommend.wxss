@@ -7,3 +7,8 @@
   text-align: center;
   margin-top: 120rpx;
 }
+.recommend__more {
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 24rpx;
+}

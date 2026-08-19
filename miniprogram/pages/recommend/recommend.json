@@ -1,7 +1,8 @@
 {
-  "navigationBarTitleText": "推荐",
-  "enablePullDownRefresh": false,
+  "navigationBarTitleText": "遇见",
+  "enablePullDownRefresh": true,
   "usingComponents": {
-    "profile-card": "/components/profile-card/index"
+    "profile-card": "/components/profile-card/index",
+    "filter-panel": "/components/filter-panel/index"
   }
 }

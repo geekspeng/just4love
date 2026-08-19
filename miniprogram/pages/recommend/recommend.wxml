@@ -1,15 +1,19 @@
 <view class="container recommend">
-  <view class="recommend__list">
+  <filter-panel bind:change="onFilterChange" />
+
+  <view class="recommend__list" wx:if="{{list.length}}">
     <profile-card
       wx:for="{{list}}"
-      wx:key="index"
+      wx:key="_id"
       profile="{{item}}"
-      show-actions
-      bind:like="onLike"
-      bind:pass="onPass"
+      bind:tap="onCardTap"
     />
   </view>
-  <view class="recommend__empty text-secondary" wx:if="{{!list.length}}">
-    暂无推荐，稍后再来看看吧
+
+  <view class="recommend__empty text-secondary" wx:if="{{!loading && !loadError && !list.length}}">
+    暂无符合条件的嘉宾，试试放宽筛选条件
   </view>
+  <view class="recommend__empty text-secondary" wx:if="{{loadError}}">加载失败，请下拉重试</view>
+  <view class="recommend__more text-secondary" wx:if="{{loading}}">加载中…</view>
+  <view class="recommend__more text-secondary" wx:if="{{!loading && hasMore}}">上拉加载更多</view>
 </view>

@@ -27,7 +27,7 @@
     "list": [
       {
         "pagePath": "pages/recommend/recommend",
-        "text": "推荐",
+        "text": "遇见",
         "iconPath": "assets/tabbar/recommend.png",
         "selectedIconPath": "assets/tabbar/recommend-active.png"
       },

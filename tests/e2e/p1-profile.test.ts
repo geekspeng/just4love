@@ -3,7 +3,7 @@
  * 云环境已就绪（app.js 已 init 真实 env），本文件驱动真实云函数业务链路：
  *   login（建户/嘉宾编号）→ getMyProfile（编辑页/我的页加载）
  *   → updateProfile（页面保存 → 云端落库 → 重新进入回显 + basicInit 锁定规则）
- * 推荐 tab 仍为 mock 数据（未接云），保留结构性断言。
+ * 「遇见」tab（recommend）已接入真实列表（P2），保留结构性断言。
  */
 import {
   connectOrLaunch,
@@ -283,9 +283,11 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
     expect(doc.paragraphs.length).toBeGreaterThanOrEqual(4);
   }, T);
 
-  it('推荐 tab 的 profile-card mock 列表仍渲染', async () => {
+  it('「遇见」tab 已接入真实列表（结构性断言）', async () => {
     await mp.switchTab('/pages/recommend/recommend');
-    // 同上：>>> 跨边界选组件根节点 .pc 计数（标签选择器在本机匹配不到自定义组件）
-    expect(await countSelector(mp, '.recommend__list >>> .pc')).toBe(2);
+    // 列表数量随真实环境数据变化，只断言容器与 data 形状
+    expect(await countSelector(mp, '.recommend__list')).toBe(1);
+    const list = await pageData<any[]>(mp, 'list');
+    expect(Array.isArray(list)).toBe(true);
   }, T);
 });

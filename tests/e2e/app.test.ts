@@ -26,21 +26,19 @@ describe('just4love E2E', () => {
 
   afterAll(() => closeSession(session));
 
-  it('启动后默认落在「推荐」页', async () => {
+  it('启动后默认落在「遇见」页', async () => {
     expect(await currentRoute(mp)).toContain('recommend');
   }, T);
 
-  it('推荐页渲染了卡片列表容器与两张卡片', async () => {
+  it('「遇见」页列表为真实数据（CardVO 脱敏：无 privacy/openid 字段）', async () => {
     expect(await countSelector(mp, '.recommend__list')).toBe(1);
-    const list = await pageData<{ nickname: string }[]>(mp, 'list');
-    expect(list).toHaveLength(2);
-  }, T);
-
-  it('推荐页 mock 数据完整（昵称/身高）', async () => {
-    const list = await pageData<{ basic: { nickname: string }; about: { height: number } }[]>(mp, 'list');
-    expect(list[0].basic.nickname).toBe('小鱼');
-    expect(list[0].about.height).toBe(165);
-    expect(list[1].basic.nickname).toBe('大刘');
+    const list = await pageData<any[]>(mp, 'list');
+    expect(Array.isArray(list)).toBe(true); // 云调用在途时为初始 []，结构性断言不赌数据量
+    for (const item of list) {
+      expect(item.privacy).toBeUndefined();
+      expect(item.openid).toBeUndefined();
+      expect(item._id).toBeTruthy();
+    }
   }, T);
 
   it('切换到「消息」tab 并校验会话列表', async () => {
