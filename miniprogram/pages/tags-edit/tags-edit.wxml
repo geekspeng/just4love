@@ -8,11 +8,12 @@
         wx:for="{{g.items}}"
         wx:key="name"
         class="tags__chip"
+        content="{{item.name}}"
         checked="{{item.selected}}"
         data-group="{{g.key}}"
         data-name="{{item.name}}"
         bind:change="onToggle"
-      >{{item.name}}</t-check-tag>
+      />
     </view>
   </view>
 

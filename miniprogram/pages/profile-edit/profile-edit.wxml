@@ -84,10 +84,11 @@
           wx:for="{{familyBackground}}"
           wx:key="*this"
           class="edit__chip"
+          content="{{item}}"
           checked="{{fbMap[item]}}"
           data-item="{{item}}"
           bind:change="onToggleFamily"
-        >{{item}}</t-check-tag>
+        />
       </view>
     </view>
   </view>
