@@ -90,6 +90,19 @@ describe('cloudfunctions/listProfiles', () => {
     expect(res.list.length).toBeLessThanOrEqual(20);
   });
 
+  test('pageSize 封顶 20 真实生效；负数 page 容错为 1', async () => {
+    const initial = { profiles: {}, users: {} };
+    for (let i = 0; i < 22; i += 1) {
+      const id = 'px' + i;
+      initial.profiles[id] = profile(id, 'o-x' + i, '2026-08-01T00:00:0' + (i % 10) + 'Z');
+    }
+    const db = createMockDb(initial);
+    const res = await listProfilesByOpenid('o-viewer', {}, -5, 99, db);
+    expect(res.page).toBe(1);
+    expect(res.list).toHaveLength(20); // 22 条 > 20 → 封顶被真正检验
+    expect(res.hasMore).toBe(true);
+  });
+
   test('列表对游客（无 users 文档）同样可用', async () => {
     const res = await listProfilesByOpenid('o-stranger', {}, 1, 10, seed());
     expect(res.list.length).toBe(4); // o-stranger 无自己的 profile，不排除任何项（共 4 个 basicInit）

@@ -40,14 +40,14 @@ function toFullVO(p, role) {
   return vo;
 }
 
-// 读 config/quotas（数字校验后覆盖默认；文档/集合缺失用默认）
+// 读 config/quotas（数字且非负才覆盖默认；-1 与「不限」语义冲突，防运营误配关停）
 async function loadQuotas(db) {
   try {
     const cfg = await db.collection('config').doc('quotas').get();
     const c = cfg.data || {};
     return {
-      normal: Number.isFinite(c.normal) ? c.normal : DEFAULT_QUOTAS.normal,
-      verified: Number.isFinite(c.verified) ? c.verified : DEFAULT_QUOTAS.verified,
+      normal: Number.isFinite(c.normal) && c.normal >= 0 ? c.normal : DEFAULT_QUOTAS.normal,
+      verified: Number.isFinite(c.verified) && c.verified >= 0 ? c.verified : DEFAULT_QUOTAS.verified,
     };
   } catch (e) {
     return DEFAULT_QUOTAS;

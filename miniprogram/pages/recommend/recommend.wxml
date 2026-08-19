@@ -15,5 +15,5 @@
   </view>
   <view class="recommend__empty text-secondary" wx:if="{{loadError}}">加载失败，请下拉重试</view>
   <view class="recommend__more text-secondary" wx:if="{{loading}}">加载中…</view>
-  <view class="recommend__more text-secondary" wx:if="{{!loading && hasMore}}">上拉加载更多</view>
+  <view class="recommend__more text-secondary" wx:if="{{!loading && hasMore && !loadError}}">上拉加载更多</view>
 </view>

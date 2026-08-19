@@ -120,6 +120,13 @@ describe('cloudfunctions/getProfileDetail', () => {
     expect(last.quota).toEqual({ used: 5, limit: 5 });
   });
 
+  test('config 配负数配额时按默认兜底（-1 与「不限」语义冲突，拒绝采纳）', async () => {
+    const db = seed({ normal: -1, verified: 15 });
+    const res = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(res.error).toBeUndefined();
+    expect(res.quota).toEqual({ used: 1, limit: 5 }); // -1 未被采纳，落回默认 5
+  });
+
   test('目标嘉宾角色为 verified → CardVO.verified=true', async () => {
     const res = await getProfileDetailByOpenid('o-normal', 'p-o-target-verified', seed({ normal: 5, verified: 15 }));
     expect(res.verified).toBe(true);
