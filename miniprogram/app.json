@@ -9,7 +9,8 @@
     "pages/tags-edit/tags-edit",
     "pages/profile-preview/profile-preview",
     "pages/settings/settings",
-    "pages/agreement/agreement"
+    "pages/agreement/agreement",
+    "pages/profile-detail/profile-detail"
   ],
   "window": {
     "backgroundTextStyle": "light",

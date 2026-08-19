@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "嘉宾详情",
+  "usingComponents": {
+    "profile-card": "/components/profile-card/index"
+  }
+}
