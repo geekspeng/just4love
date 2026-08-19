@@ -112,6 +112,33 @@ npm run test:e2e
 - [ ] 设置页：帮助/关于/用户协议/隐私政策/退出登录/注销（注销后 users+profiles 文档删除）
 - [ ] `npm test`（unit+integration）与 `npm run test:e2e` 全部通过
 
+## P2 部署与验收（遇见：浏览与配额）
+
+### 部署步骤
+
+1. **云函数**：IDE 中对 `cloudfunctions/listProfiles`、`cloudfunctions/getProfileDetail`、
+   `cloudfunctions/setupDb` 右键「上传并部署：云端安装依赖」（本机 CLI deploy 有 41002 问题，走 GUI）。
+2. **初始化集合**：部署后调用一次 `setupDb`（幂等）——新增 `config`、`view_logs` 集合，
+   并在 `config/quotas` 写入默认配额 `{ normal: 5, verified: 15 }`。
+3. **新集合权限**：云开发控制台将 `config`、`view_logs` 权限设为「仅创建者可读写」。
+4. **配额调整**（可选）：控制台改 `config/quotas` 的 `normal`/`verified` 数字即可生效，
+   代码内有默认值兜底，P4 管理页上线前这是唯一改配额入口。
+5. **已有 profiles 数据**：P2 之前创建的资料文档没有 `createdAt`（列表排序字段），
+   让这些用户重新保存一次资料即可补上；或控制台按注册时间手工补。
+6. **指定管理员**（同 P1 约定）：控制台将目标用户 `role` 改为 `admin`（不限次查看 + 隐私直看）。
+
+### 验收清单（对应设计文档 §5 与 §10）
+
+- [ ] 「推荐」tab 更名「遇见」，列表为真实资料卡（最新注册在前，分页上拉加载）
+- [ ] 筛选面板：年龄/身高范围、学历/婚姻状况/职业多选、现居地省市两级多选，云端执行
+- [ ] 卡片点击进详情；分享卡片可转发，落地走登录引导
+- [ ] 游客（未登录）可看列表，点详情显示登录引导；登录后自动恢复查看
+- [ ] 普通用户每日 5 个不同嘉宾详情、认证用户 15 个，重复看不重复计数，超额有提示
+- [ ] 管理员不限次且直接可见联系方式/资产明文
+- [ ] 普通用户详情页隐私字段显示 🔒「征求同意后可见」占位
+- [ ] 心动/聊天/无感/举报点击提示「即将开放」（P3 激活）
+- [ ] `npm test` 与 `npm run test:e2e` 全部通过
+
 ## TypeScript
 
 E2E 测试用 TypeScript 编写（`tests/e2e/*.test.ts`），由 ts-jest 转换。
