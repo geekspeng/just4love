@@ -1,7 +1,8 @@
-/* filter-panel —— 筛选面板（自绘，主题色沿用 --color-primary） */
+/* filter-panel —— 筛选面板（TDesign 组件承载交互视觉，布局样式自绘；
+   颜色直接用主题变量：app.wxss 的工具类不穿透组件 styleIsolation） */
 .fp {
   background: #ffffff;
-  border-radius: 16rpx;
+  border-radius: var(--radius-card, 16rpx);
   padding: 0 24rpx;
 }
 .fp__bar {
@@ -13,13 +14,16 @@
 .fp__bar-title {
   font-size: 30rpx;
   font-weight: 600;
+  color: var(--color-text-primary, #222222);
 }
 .fp__arrow {
   font-size: 22rpx;
+  color: var(--color-text-secondary, #999999);
 }
 .fp__bar-reset {
   margin-left: auto;
   font-size: 26rpx;
+  color: var(--color-primary, #ff5a5f);
 }
 .fp__body {
   padding: 8rpx 0 24rpx;
@@ -30,6 +34,7 @@
 .fp__label {
   display: block;
   font-size: 26rpx;
+  color: var(--color-text-secondary, #999999);
   margin-bottom: 12rpx;
 }
 .fp__range {
@@ -37,34 +42,22 @@
   align-items: center;
   gap: 20rpx;
 }
+.fp__dash {
+  color: var(--color-text-secondary, #999999);
+}
 .fp__picker {
-  display: inline-block;
-  min-width: 140rpx;
-  padding: 8rpx 20rpx;
+  min-width: 160rpx;
+  padding: 10rpx 24rpx;
   border: 1rpx solid #e5e5e5;
   border-radius: 12rpx;
   font-size: 26rpx;
-  color: #333333;
+  color: var(--color-text-primary, #222222);
   text-align: center;
-}
-.fp__picker--dim {
-  color: #bbbbbb;
 }
 .fp__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
-}
-.fp__chip {
-  padding: 8rpx 24rpx;
-  border-radius: 999rpx;
-  background: #f5f5f5;
-  color: #666666;
-  font-size: 26rpx;
-}
-.fp__chip--on {
-  background: rgba(255, 90, 95, 0.12);
-  color: var(--color-primary, #ff5a5f);
 }
 .fp__actions {
   display: flex;
@@ -73,16 +66,4 @@
 }
 .fp__btn {
   flex: 1;
-  height: 76rpx;
-  line-height: 76rpx;
-  text-align: center;
-  border-radius: 38rpx;
-  font-size: 28rpx;
-  border: 1rpx solid #e5e5e5;
-  color: #666666;
-}
-.fp__btn--primary {
-  background: var(--color-primary, #ff5a5f);
-  border-color: var(--color-primary, #ff5a5f);
-  color: #ffffff;
 }

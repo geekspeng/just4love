@@ -1,81 +1,84 @@
 <view class="fp">
   <view class="fp__bar" bindtap="onToggle">
     <text class="fp__bar-title">筛选</text>
-    <text class="fp__arrow text-secondary">{{expanded ? '▲' : '▼'}}</text>
-    <view class="fp__bar-reset text-primary" catchtap="onReset">重置</view>
+    <text class="fp__arrow">{{expanded ? '▲' : '▼'}}</text>
+    <view class="fp__bar-reset" catchtap="onReset">重置</view>
   </view>
 
   <view class="fp__body" wx:if="{{expanded}}">
-    <!-- 年龄 -->
+    <!-- 年龄/身高区间：触发行打开共享 t-picker -->
     <view class="fp__group">
-      <text class="fp__label text-secondary">年龄</text>
+      <text class="fp__label">年龄</text>
       <view class="fp__range">
-        <picker range="{{ageOptions}}" bindchange="onRangeChange" data-field="ageMin">
-          <text class="fp__picker">{{selAgeMin === '不限' ? '最小不限' : selAgeMin + '岁'}}</text>
-        </picker>
-        <text class="text-secondary">—</text>
-        <picker range="{{ageOptions}}" bindchange="onRangeChange" data-field="ageMax">
-          <text class="fp__picker">{{selAgeMax === '不限' ? '最大不限' : selAgeMax + '岁'}}</text>
-        </picker>
+        <view class="fp__picker" bindtap="onTapRange" data-field="ageMin">{{selAgeMin === '不限' ? '最小不限' : selAgeMin + '岁'}}</view>
+        <text class="fp__dash">—</text>
+        <view class="fp__picker" bindtap="onTapRange" data-field="ageMax">{{selAgeMax === '不限' ? '最大不限' : selAgeMax + '岁'}}</view>
       </view>
     </view>
 
-    <!-- 身高 -->
     <view class="fp__group">
-      <text class="fp__label text-secondary">身高</text>
+      <text class="fp__label">身高</text>
       <view class="fp__range">
-        <picker range="{{heightOptions}}" bindchange="onRangeChange" data-field="heightMin">
-          <text class="fp__picker">{{selHeightMin === '不限' ? '最小不限' : selHeightMin + 'cm'}}</text>
-        </picker>
-        <text class="text-secondary">—</text>
-        <picker range="{{heightOptions}}" bindchange="onRangeChange" data-field="heightMax">
-          <text class="fp__picker">{{selHeightMax === '不限' ? '最大不限' : selHeightMax + 'cm'}}</text>
-        </picker>
+        <view class="fp__picker" bindtap="onTapRange" data-field="heightMin">{{selHeightMin === '不限' ? '最小不限' : selHeightMin + 'cm'}}</view>
+        <text class="fp__dash">—</text>
+        <view class="fp__picker" bindtap="onTapRange" data-field="heightMax">{{selHeightMax === '不限' ? '最大不限' : selHeightMax + 'cm'}}</view>
       </view>
     </view>
 
-    <!-- 多选维度：学历 / 婚姻状况 / 职业 -->
+    <!-- 多选维度：学历 / 婚姻状况 / 职业（t-check-tag） -->
     <view class="fp__group" wx:for="{{chipGroups}}" wx:for-item="group" wx:key="key">
-      <text class="fp__label text-secondary">{{group.title}}</text>
+      <text class="fp__label">{{group.title}}</text>
       <view class="fp__chips">
-        <text
+        <t-check-tag
           wx:for="{{group.items}}"
           wx:for-item="opt"
           wx:key="text"
-          class="fp__chip {{opt.on ? 'fp__chip--on' : ''}}"
+          content="{{opt.text}}"
+          checked="{{opt.on}}"
           data-group="{{group.key}}"
           data-item="{{opt.text}}"
-          bindtap="onToggleSelect"
-        >{{opt.text}}</text>
+          bind:change="onToggleSelect"
+        />
       </view>
     </view>
 
-    <!-- 现居地：省 → 市 两级，选市累加为可删 chips -->
+    <!-- 现居地：双列联动 t-picker 选市，t-tag closable 已选 -->
     <view class="fp__group">
-      <text class="fp__label text-secondary">现居地</text>
+      <text class="fp__label">现居地</text>
       <view class="fp__range">
-        <picker range="{{provinces}}" bindchange="onProvinceChange">
-          <text class="fp__picker">{{selProvince || '选择省'}}</text>
-        </picker>
-        <picker range="{{cityOptions}}" bindchange="onCityChange" disabled="{{!cityOptions.length}}">
-          <text class="fp__picker {{cityOptions.length ? '' : 'fp__picker--dim'}}">选择市</text>
-        </picker>
+        <view class="fp__picker" bindtap="onRegionOpen">＋ 添加城市</view>
       </view>
       <view class="fp__chips" wx:if="{{selCities.length}}">
-        <text
+        <t-tag
           wx:for="{{selCities}}"
           wx:key="*this"
-          class="fp__chip fp__chip--on"
-          data-group="selCities"
+          theme="primary"
+          variant="light"
+          closable
           data-item="{{item}}"
-          bindtap="onToggleSelect"
-        >{{item}} ×</text>
+          bind:close="onRemoveCity"
+        >{{item}}</t-tag>
       </view>
     </view>
 
     <view class="fp__actions">
-      <view class="fp__btn" bindtap="onReset">重置</view>
-      <view class="fp__btn fp__btn--primary" bindtap="onApply">应用筛选</view>
+      <t-button class="fp__btn" block bind:tap="onReset">重置</t-button>
+      <t-button class="fp__btn" theme="primary" block bind:tap="onApply">应用筛选</t-button>
     </view>
   </view>
+
+  <!-- 共享单列 t-picker（区间四路，RANGE_DEFS 驱动） -->
+  <t-picker visible="{{pickerVisible}}" title="{{pickerTitle}}" value="{{pickerValue}}"
+            bind:confirm="onRangeConfirm" bind:cancel="onRangeCancel"
+            bind:visible-change="onPickerVisibleChange">
+    <t-picker-item options="{{pickerOptions}}" />
+  </t-picker>
+
+  <!-- 省市双列联动 t-picker -->
+  <t-picker visible="{{regionVisible}}" title="选择城市" value="{{regionValue}}"
+            bind:confirm="onRegionConfirm" bind:cancel="onRegionCancel" bind:pick="onRegionPick"
+            bind:visible-change="onRegionVisibleChange">
+    <t-picker-item options="{{provinces}}" />
+    <t-picker-item options="{{regionCities}}" />
+  </t-picker>
 </view>
