@@ -1,0 +1,88 @@
+/* filter-panel —— 筛选面板（自绘，主题色沿用 --color-primary） */
+.fp {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+}
+.fp__bar {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  gap: 12rpx;
+}
+.fp__bar-title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+.fp__arrow {
+  font-size: 22rpx;
+}
+.fp__bar-reset {
+  margin-left: auto;
+  font-size: 26rpx;
+}
+.fp__body {
+  padding: 8rpx 0 24rpx;
+}
+.fp__group {
+  margin-top: 24rpx;
+}
+.fp__label {
+  display: block;
+  font-size: 26rpx;
+  margin-bottom: 12rpx;
+}
+.fp__range {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.fp__picker {
+  display: inline-block;
+  min-width: 140rpx;
+  padding: 8rpx 20rpx;
+  border: 1rpx solid #e5e5e5;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #333333;
+  text-align: center;
+}
+.fp__picker--dim {
+  color: #bbbbbb;
+}
+.fp__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.fp__chip {
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  background: #f5f5f5;
+  color: #666666;
+  font-size: 26rpx;
+}
+.fp__chip--on {
+  background: rgba(255, 90, 95, 0.12);
+  color: var(--color-primary, #ff5a5f);
+}
+.fp__actions {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 32rpx;
+}
+.fp__btn {
+  flex: 1;
+  height: 76rpx;
+  line-height: 76rpx;
+  text-align: center;
+  border-radius: 38rpx;
+  font-size: 28rpx;
+  border: 1rpx solid #e5e5e5;
+  color: #666666;
+}
+.fp__btn--primary {
+  background: var(--color-primary, #ff5a5f);
+  border-color: var(--color-primary, #ff5a5f);
+  color: #ffffff;
+}
