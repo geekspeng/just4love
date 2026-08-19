@@ -163,7 +163,9 @@ async function updateProfileByOpenid(openid, patch, db) {
   merged.userId = user._id;
   Object.keys(sanitized.patch).forEach((k) => { merged[k] = sanitized.patch[k]; });
   if (sanitized.initNow) merged.basicInit = true;
-  merged.updatedAt = new Date().toISOString();
+  const now = new Date().toISOString();
+  merged.createdAt = merged.createdAt || now; // 建档时间：首次写入后不变（P2 列表排序依赖）
+  merged.updatedAt = now;
 
   // 真实云数据库 set 的 data 不应携带 _id（写回 payload 剔除 _id）
   const payload = JSON.parse(JSON.stringify(merged));

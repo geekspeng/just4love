@@ -1,0 +1,10 @@
+{
+  "name": "listProfiles",
+  "version": "1.0.0",
+  "description": "遇见列表：筛选 + 分页 + 脱敏 + 实名标识",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}

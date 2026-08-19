@@ -123,4 +123,14 @@ describe('cloudfunctions/updateProfile', () => {
     }, db);
     expect(res.profile.privacy.contact.phone).toBe('13800000000');
   });
+
+  test('首次建档写入 createdAt，再次更新保留原值（P2 列表排序依赖）', async () => {
+    const db = createMockDb({ users: { u1: { _id: 'u1', openid: 'o1', role: 'normal', guestNo: 'J0001' } } });
+    const first = await updateProfileByOpenid('o1', { basic: { nickname: '小鱼' } }, db);
+    expect(first.profile.createdAt).toBeTruthy();
+    await new Promise((r) => setTimeout(r, 5)); // 保证时间戳可区分
+    const second = await updateProfileByOpenid('o1', { basic: { signature: '新签名' } }, db);
+    expect(second.profile.createdAt).toBe(first.profile.createdAt);
+    expect(second.profile.updatedAt >= first.profile.updatedAt).toBe(true);
+  });
 });
