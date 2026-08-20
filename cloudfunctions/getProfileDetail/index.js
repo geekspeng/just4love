@@ -1,6 +1,6 @@
 // getProfileDetail 云函数 —— 资料详情：登录/配额校验 + 查看日志 + 按角色裁剪隐私
 // 入参 { profileId }，返回见数据契约（login required / not found / quota exceeded / 成功 VO）。
-// 配额 = 当日可查看的不同嘉宾数（view_logs 按 targetId 去重，重复看不重复计数）。
+// 配额 = 当日不同嘉宾数（quota_counters 原子计数准入；view_logs 记录复看去重与「谁看过我」）。
 // 管理员与本人直看隐私明文且不写日志；其余角色隐私整段剔除（P3 授权流激活）。
 // 注意：模块顶层不得 require('wx-server-sdk')（集成测试直接 require 本文件）。
 
@@ -66,6 +66,24 @@ function toFullVO(p, role) {
   return vo;
 }
 
+// 非 self/admin 视角：按 consents 状态组装 consents 响应与解锁的隐私子段
+async function buildConsentView(db, openid, target) {
+  const arr = await db.collection('consents')
+    .where({ requesterOpenid: openid, ownerOpenid: target.openid }).get();
+  const status = { contact: 'none', asset: 'none' };
+  for (const c of arr.data) status[c.field] = c.status;
+  const privacy = {};
+  const src = target.privacy || {};
+  if (status.contact === 'approved') privacy.contact = src.contact || {};
+  if (status.asset === 'approved') privacy.asset = src.asset || {};
+  return { status, privacy: (privacy.contact || privacy.asset) ? privacy : undefined };
+}
+
+function withConsentPrivacy(vo, cv) {
+  if (cv.privacy) vo.privacy = cv.privacy;
+  return vo;
+}
+
 // 读 config/quotas（数字且非负才覆盖默认；-1 与「不限」语义冲突，防运营误配关停）
 async function loadQuotas(db) {
   try {
@@ -106,11 +124,11 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
 
   // 本人：隐私明文、不占配额、不写日志
   if (target.openid === me.openid) {
-    return { profile: toFullVO(target, targetRole), verified: isVerified, self: true, quota: null };
+    return { profile: toFullVO(target, targetRole), verified: isVerified, self: true, quota: null, consents: { contact: 'approved', asset: 'approved' } };
   }
   // 管理员：不限、隐私明文、不写日志（避免污染 P3「谁看过我」）
   if (me.role === 'admin') {
-    return { profile: toFullVO(target, targetRole), verified: isVerified, self: false, quota: { used: 0, limit: -1 } };
+    return { profile: toFullVO(target, targetRole), verified: isVerified, self: false, quota: { used: 0, limit: -1 }, consents: { contact: 'approved', asset: 'approved' } };
   }
 
   const quotas = await loadQuotas(db);
@@ -120,8 +138,10 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
   const logs = await db.collection('view_logs').where({ viewerOpenid: openid, dateKey }).get();
   const seen = new Set(logs.data.map((l) => l.targetId));
 
+  const cv = await buildConsentView(db, openid, target);
+
   if (seen.has(profileId)) {
-    return { profile: toCardVO(target, targetRole), verified: isVerified, self: false, quota: { used: seen.size, limit } };
+    return { profile: withConsentPrivacy(toCardVO(target, targetRole), cv), verified: isVerified, self: false, quota: { used: seen.size, limit }, consents: cv.status };
   }
   const acquired = await acquireQuota(db, openid, dateKey, limit);
   if (!acquired.ok) {
@@ -142,7 +162,7 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
     guestNo: myBasic.guestNo || me.guestNo || '',
     profileId: myProfileArr.data[0] ? myProfileArr.data[0]._id : null,
   });
-  return { profile: toCardVO(target, targetRole), verified: isVerified, self: false, quota: { used: acquired.used, limit } };
+  return { profile: withConsentPrivacy(toCardVO(target, targetRole), cv), verified: isVerified, self: false, quota: { used: acquired.used, limit }, consents: cv.status };
 }
 
 exports.main = async (event) => {

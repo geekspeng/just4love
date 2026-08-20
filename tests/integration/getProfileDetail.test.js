@@ -173,4 +173,28 @@ describe('cloudfunctions/getProfileDetail', () => {
     const notes = await db.collection('notifications').where({}).get();
     expect(notes.data).toHaveLength(0);
   });
+
+  test('consents 状态响应：self/admin 恒 approved；普通用户默认 none', async () => {
+    const db = seed({ normal: 5, verified: 15 });
+    const self = await getProfileDetailByOpenid('o-owner', 'p-o-owner', db);
+    expect(self.consents).toEqual({ contact: 'approved', asset: 'approved' });
+    const admin = await getProfileDetailByOpenid('o-admin', 'p-o-t3', db);
+    expect(admin.consents).toEqual({ contact: 'approved', asset: 'approved' });
+    const normal = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(normal.consents).toEqual({ contact: 'none', asset: 'none' });
+    expect(normal.profile.privacy).toBeUndefined();
+  });
+
+  test('approved 字段解锁对应隐私子段；rejected/revoked/pending 不解锁', async () => {
+    const db = seed({ normal: 5, verified: 15 });
+    const consents = db.collection('consents');
+    await consents.add({ data: { requesterOpenid: 'o-normal', ownerOpenid: 'o-t3', field: 'contact', status: 'approved', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z', decidedAt: '2026-08-01T00:00:00Z' } });
+    await consents.add({ data: { requesterOpenid: 'o-normal', ownerOpenid: 'o-t3', field: 'asset', status: 'revoked', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-02T00:00:00Z', decidedAt: '2026-08-02T00:00:00Z' } });
+    const res = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(res.consents).toEqual({ contact: 'approved', asset: 'revoked' });
+    expect(res.profile.privacy).toEqual({ contact: { phone: '13800000000', wechat: 'wx-abc' } }); // 仅解锁子段
+    // 复看路径同样生效
+    const again = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    expect(again.profile.privacy.contact.phone).toBe('13800000000');
+  });
 });
