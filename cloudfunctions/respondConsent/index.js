@@ -55,7 +55,7 @@ exports.main = async (event) => {
     cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
     const openid = cloud.getWXContext().OPENID;
     const e = event || {};
-    return await respondConsentByOpenid(openid, e.consentId, e.action, getDb());
+    return await respondConsentByOpenid(getDb(), openid, e.consentId, e.action);
   } catch (e) {
     console.error('[respondConsent] failed:', e);
     return { error: 'internal error' };

@@ -50,7 +50,6 @@ async function requestConsentByOpenid(openid, ownerProfileId, field, db) {
   if (existing) {
     // rejected/revoked → 重新申请
     await consents.doc(existing._id).update({ data: { status: 'pending', updatedAt: now, decidedAt: null } });
-    payload.consentId = existing._id;
     await notify(db, owner.openid, 'consent_request', payload);
     return { status: 'pending' };
   }
