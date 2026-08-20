@@ -1,3 +1,5 @@
+/* 以下 message__* 行样式与 message 页同构（页面级样式跨页不共享，自 message.wxss 复制、类名不变；
+   message__empty 在 message.wxss 中无规则（仅 wxml 钩子类），此处同样不定义） */
 .message__list {
   display: flex;
   flex-direction: column;
@@ -24,30 +26,15 @@
   font-size: 30rpx;
   font-weight: 600;
 }
-.message__last {
-  margin-top: 6rpx;
-  font-size: 26rpx;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.message__badge-host {
-  margin-left: 16rpx;
-}
-.message__entries {
-  margin-bottom: 20rpx;
-}
-.message__item--unread {
-  border: 1rpx solid rgba(255, 90, 95, 0.35);
-}
-.message__text {
-  font-size: 28rpx;
-}
-.message__time {
+.ilist__no {
   font-size: 22rpx;
-  margin-top: 8rpx;
+  margin-left: 12rpx;
 }
-.message__actions {
-  display: flex;
-  gap: 12rpx;
+.ilist__verified {
+  font-size: 22rpx;
+  margin-left: 8rpx;
+}
+.ilist__sub {
+  font-size: 24rpx;
+  margin-top: 8rpx;
 }

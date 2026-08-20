@@ -1,8 +1,11 @@
 {
   "navigationBarTitleText": "消息",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "t-avatar": "tdesign-miniprogram/avatar/avatar",
     "t-badge": "tdesign-miniprogram/badge/badge",
-    "t-empty": "tdesign-miniprogram/empty/empty"
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-button": "tdesign-miniprogram/button/button"
   }
 }

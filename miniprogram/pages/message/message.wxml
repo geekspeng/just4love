@@ -1,19 +1,33 @@
 <view class="container message">
+  <view class="card message__entries">
+    <t-cell title="谁看过我" arrow hover bind:tap="onOpenInteractions" data-type="view" />
+    <t-cell title="喜欢我的" arrow hover bind:tap="onOpenInteractions" data-type="like" />
+  </view>
+
   <view class="message__list">
     <view
-      wx:for="{{sessions}}"
-      wx:key="id"
-      class="message__item card"
-      data-id="{{item.id}}"
-      bindtap="onTapSession"
+      wx:for="{{entries}}"
+      wx:key="_id"
+      class="message__item card {{item.read ? '' : 'message__item--unread'}}"
+      data-id="{{item._id}}"
+      data-profile-id="{{item.payload.profileId}}"
+      data-read="{{item.read}}"
+      bindtap="onTapEntry"
     >
-      <t-avatar class="message__avatar" image="{{item.avatar}}" shape="circle" size="88rpx" />
+      <t-avatar class="message__avatar" shape="circle" size="88rpx" /><!-- 通知 payload 无头像快照，用默认占位 -->
       <view class="message__body">
-        <view class="message__name">{{item.nickname}}</view>
-        <view class="message__last text-secondary">{{item.lastMessage}}</view>
+        <view class="message__text">{{item.text}}</view>
+        <view class="message__time text-secondary">{{item.createdAt}}</view>
       </view>
-      <t-badge wx:if="{{item.unread}}" class="message__badge-host" count="{{item.unread}}" />
+      <t-badge wx:if="{{!item.read}}" class="message__badge-host" dot />
+      <view wx:if="{{item.type === 'consent_request' && !item.read}}" class="message__actions">
+        <t-button size="extra-small" variant="outline" data-consent-id="{{item.payload.consentId}}"
+                  data-action="approve" catchtap="onRespond">同意</t-button>
+        <t-button size="extra-small" variant="outline" data-consent-id="{{item.payload.consentId}}"
+                  data-action="reject" catchtap="onRespond">拒绝</t-button>
+      </view>
     </view>
   </view>
-  <t-empty wx:if="{{!sessions.length}}" class="message__empty" description="还没有消息" />
+
+  <t-empty wx:if="{{!loading && !entries.length}}" class="message__empty" description="还没有消息，去遇见看看吧" />
 </view>

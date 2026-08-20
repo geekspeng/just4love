@@ -11,7 +11,8 @@
     "pages/settings/settings",
     "pages/agreement/agreement",
     "pages/profile-detail/profile-detail",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/interaction-list/interaction-list"
   ],
   "window": {
     "backgroundTextStyle": "light",

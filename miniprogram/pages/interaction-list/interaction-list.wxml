@@ -1,0 +1,26 @@
+<view class="container ilist">
+  <view class="message__list">
+    <view
+      wx:for="{{list}}"
+      wx:key="profileId"
+      class="message__item card"
+      data-id="{{item.profileId}}"
+      bindtap="onTapItem"
+    >
+      <t-avatar class="message__avatar" image="{{item.avatarFileID}}" shape="circle" size="88rpx" />
+      <view class="message__body">
+        <view class="message__name">
+          {{item.nickname || item.guestNo}}
+          <text class="text-secondary ilist__no">{{item.guestNo}}</text>
+          <text wx:if="{{item.verified}}" class="ilist__verified text-primary">· 已实名</text>
+        </view>
+        <view class="text-secondary ilist__sub">
+          {{type === 'like' && item.matched ? '互相心动，已匹配' : (type === 'like' ? '对你心动了' : '查看了你的资料')}}
+        </view>
+      </view>
+      <t-tag wx:if="{{type === 'like' && item.matched}}" theme="primary" variant="light" size="small">已匹配</t-tag>
+    </view>
+  </view>
+  <t-empty wx:if="{{!loading && !list.length}}" class="message__empty"
+           description="{{type === 'like' ? '还没有人心动你，再等等' : '还没有人查看过你，完善资料更受关注'}}" />
+</view>
