@@ -1,0 +1,10 @@
+{
+  "name": "interact",
+  "version": "1.0.0",
+  "description": "心动/无感：态度 upsert + 互配检测 + 通知",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}
