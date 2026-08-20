@@ -138,10 +138,21 @@ Component({
 
     buildFilter() {
       const f = {};
-      if (this.data.selAgeMin !== UNLIMITED) f.ageMin = this.data.selAgeMin;
-      if (this.data.selAgeMax !== UNLIMITED) f.ageMax = this.data.selAgeMax;
-      if (this.data.selHeightMin !== UNLIMITED) f.heightMin = this.data.selHeightMin;
-      if (this.data.selHeightMax !== UNLIMITED) f.heightMax = this.data.selHeightMax;
+      // 区间钳制：min>max 自动交换（云函数按区间查询，倒挂返回空集——前端兜底）
+      let ageMin = this.data.selAgeMin === UNLIMITED ? null : this.data.selAgeMin;
+      let ageMax = this.data.selAgeMax === UNLIMITED ? null : this.data.selAgeMax;
+      if (ageMin !== null && ageMax !== null && ageMin > ageMax) {
+        const t = ageMin; ageMin = ageMax; ageMax = t;
+      }
+      let heightMin = this.data.selHeightMin === UNLIMITED ? null : this.data.selHeightMin;
+      let heightMax = this.data.selHeightMax === UNLIMITED ? null : this.data.selHeightMax;
+      if (heightMin !== null && heightMax !== null && heightMin > heightMax) {
+        const t = heightMin; heightMin = heightMax; heightMax = t;
+      }
+      if (ageMin !== null) f.ageMin = ageMin;
+      if (ageMax !== null) f.ageMax = ageMax;
+      if (heightMin !== null) f.heightMin = heightMin;
+      if (heightMax !== null) f.heightMax = heightMax;
       if (this.data.selEducations.length) f.educations = this.data.selEducations;
       if (this.data.selEmotionalStatuses.length) f.emotionalStatuses = this.data.selEmotionalStatuses;
       if (this.data.selJobs.length) f.jobs = this.data.selJobs;

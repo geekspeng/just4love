@@ -107,4 +107,30 @@ describe('cloudfunctions/listProfiles', () => {
     const res = await listProfilesByOpenid('o-stranger', {}, 1, 10, seed());
     expect(res.list.length).toBe(4); // o-stranger 无自己的 profile，不排除任何项（共 4 个 basicInit）
   });
+
+  test('无感排除：pass 过的嘉宾不出现在任何页（含跨页精确性）', async () => {
+    const initial = { profiles: {}, users: {}, interactions: {
+      i1: { _id: 'i1', fromOpenid: 'o-viewer', targetId: 'px0', targetOpenid: 'o-x0', type: 'pass', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+    } };
+    for (let i = 0; i < 5; i += 1) {
+      const id = 'px' + i;
+      initial.profiles[id] = profile(id, 'o-x' + i, '2026-08-0' + (i + 1) + 'T00:00:00Z');
+    }
+    const db = createMockDb(initial);
+    const p1 = await listProfilesByOpenid('o-viewer', {}, 1, 2, db);
+    expect(p1.list.map((x) => x._id)).toEqual(['px4', 'px3']); // px0 被排除
+    expect(p1.hasMore).toBe(true);
+    const p2 = await listProfilesByOpenid('o-viewer', {}, 2, 2, db);
+    expect(p2.list.map((x) => x._id)).toEqual(['px2', 'px1']);
+    expect(p2.hasMore).toBe(false);
+  });
+
+  test('like 过的嘉宾不排除（仅 pass 排除）', async () => {
+    const db = createMockDb({
+      profiles: { pA: profile('pA', 'o-a', '2026-08-01T00:00:00Z') },
+      interactions: { i1: { _id: 'i1', fromOpenid: 'o-viewer', targetId: 'pA', targetOpenid: 'o-a', type: 'like', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' } },
+    });
+    const res = await listProfilesByOpenid('o-viewer', {}, 1, 10, db);
+    expect(res.list.map((x) => x._id)).toEqual(['pA']);
+  });
 });

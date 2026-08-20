@@ -124,4 +124,22 @@ describe('components/filter-panel', () => {
     expect(spy).toHaveBeenCalledWith('change', { filter: {} });
     comp.detach();
   });
+
+  test('min>max 自动交换（年龄/身高）', () => {
+    const comp = render();
+    const spy = jest.fn();
+    comp.instance.triggerEvent = spy;
+    // 选 ageMin=40（下标 22）、ageMax=20（下标 2）；heightMin=200（下标 30）、heightMax=160（下标 10）
+    comp.instance.onTapRange({ currentTarget: { dataset: { field: 'ageMin' } } });
+    comp.instance.onRangeConfirm({ detail: { value: [40] } });
+    comp.instance.onTapRange({ currentTarget: { dataset: { field: 'ageMax' } } });
+    comp.instance.onRangeConfirm({ detail: { value: [20] } });
+    comp.instance.onTapRange({ currentTarget: { dataset: { field: 'heightMin' } } });
+    comp.instance.onRangeConfirm({ detail: { value: [200] } });
+    comp.instance.onTapRange({ currentTarget: { dataset: { field: 'heightMax' } } });
+    comp.instance.onRangeConfirm({ detail: { value: [160] } });
+    comp.instance.onApply();
+    expect(spy).toHaveBeenCalledWith('change', { filter: { ageMin: 20, ageMax: 40, heightMin: 160, heightMax: 200 } });
+    comp.detach();
+  });
 });

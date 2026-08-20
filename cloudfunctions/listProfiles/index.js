@@ -66,23 +66,30 @@ function buildWhere(db, filter, viewerOpenid) {
 async function listProfilesByOpenid(openid, filter, page, pageSize, db) {
   const p = Math.max(1, Math.floor(Number(page) || 1));
   const size = Math.min(MAX_PAGE_SIZE, Math.max(1, Math.floor(Number(pageSize) || DEFAULT_PAGE_SIZE)));
+  // 无感排除：取我的全部 pass 目标；云数据库无 nin，采用「超额取回 + 内存过滤 + 内存切页」
+  // （补偿量 = 全量无感数，保证任意页窗口精确；skip 移除，统一从头取）
+  const passed = await db.collection('interactions').where({ fromOpenid: openid, type: 'pass' }).get();
+  const passedIds = new Set(passed.data.map((d) => d.targetId));
+  const fetchLimit = (p - 1) * size + size + 1 + passedIds.size; // 页尾 + hasMore 探测 + 无感补偿
   const got = await db.collection('profiles')
     .where(buildWhere(db, filter, openid))
     .orderBy('createdAt', 'desc')
-    .skip((p - 1) * size)
-    .limit(size + 1) // 多取 1 条探测 hasMore，免 count()
+    .skip(0)
+    .limit(fetchLimit)
     .get();
-  const hasMore = got.data.length > size;
-  const rows = hasMore ? got.data.slice(0, size) : got.data;
+  const filtered = got.data.filter((r) => !passedIds.has(r._id));
+  const hasMore = filtered.length > p * size;
+  const rows = hasMore ? filtered.slice(0, p * size) : filtered;
+  const pageRows = rows.slice((p - 1) * size, p * size);
 
   // join users 拿角色 → verified 标识；查不到的用户按 normal 处理
   const roleMap = {};
-  const openids = rows.map((r) => r.openid);
+  const openids = pageRows.map((r) => r.openid);
   if (openids.length > 0) {
     const users = await db.collection('users').where({ openid: db.command.in(openids) }).get();
     for (const u of users.data) roleMap[u.openid] = u.role;
   }
-  const list = rows.map((r) => toCardVO(r, roleMap[r.openid]));
+  const list = pageRows.map((r) => toCardVO(r, roleMap[r.openid]));
   return { list, page: p, hasMore };
 }
 
