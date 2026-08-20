@@ -41,13 +41,15 @@ describe('just4love E2E', () => {
     }
   }, T);
 
-  it('切换到「消息」tab 并校验会话列表', async () => {
+  it('切换到「消息」tab 并校验通知流数据（P3 改版）', async () => {
     await mp.switchTab('/pages/message/message');
     expect(await currentRoute(mp)).toContain('message');
 
-    expect(await countSelector(mp, '.message__item')).toBe(1);
-    const sessions = await pageData<{ lastMessage: string }[]>(mp, 'sessions');
-    expect(sessions[0].lastMessage).toContain('你好');
+    // 通知流数据键：云调用在途时为初始 []/0，结构性断言不赌数据量
+    const entries = await pageData<unknown[]>(mp, 'entries');
+    expect(Array.isArray(entries)).toBe(true);
+    const unread = await pageData<number>(mp, 'unread');
+    expect(typeof unread).toBe('number');
   }, T);
 
   it('切换到「我的」tab 并校验资料卡片与菜单', async () => {

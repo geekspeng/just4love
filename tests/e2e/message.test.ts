@@ -1,5 +1,6 @@
 /**
- * 消息页 E2E 测试 —— 用 skill 模板生成，验证模板可用性
+ * 消息页 E2E 测试 —— P3 改版后为系统通知流（entries/unread/loading），
+ * 断言数据结构与顶部入口交互；不再有 P2 前的 mock 会话（sessions/小鱼）。
  */
 import {
   connectOrLaunch,
@@ -28,23 +29,30 @@ describe('消息页 E2E', () => {
     expect(await currentRoute(mp)).toContain('message');
   }, T);
 
-  it('会话数据符合预期', async () => {
-    const sessions = await pageData<
-      { id: string; nickname: string; unread: number }[]
-    >(mp, 'sessions');
-    expect(sessions).toHaveLength(1);
-    expect(sessions[0].nickname).toBe('小鱼');
-    expect(sessions[0].unread).toBe(1);
+  it('通知流数据结构符合预期（entries/unread）', async () => {
+    // 真实云函数链路，条目数取决于账号通知，做结构性断言不赌数据量
+    const entries = await pageData<unknown[]>(mp, 'entries');
+    expect(Array.isArray(entries)).toBe(true);
+    const unread = await pageData<number>(mp, 'unread');
+    expect(typeof unread).toBe('number');
   }, T);
 
-  it('点击会话可触发（onTapSession）', async () => {
-    const ok = await runInApp(mp, () => {
-      const page = getCurrentPages().slice(-1)[0] as unknown as {
-        onTapSession: (e: { currentTarget: { dataset: Record<string, string> } }) => void;
+  it('顶部入口可触发（onOpenInteractions 分发 interaction-list）', async () => {
+    // stub wx.navigateTo 捕获分发 URL（真导航的 navigateTo 在本机挂死，见 helpers navTo 注释）
+    const routed = await runInApp<{ url: string } | null>(mp, () => {
+      const page = getCurrentPages().slice(-1)[0];
+      const orig = wx.navigateTo;
+      let captured: { url: string } | null = null;
+      wx.navigateTo = (opt: NavOption) => {
+        captured = { url: opt.url || '' };
       };
-      page.onTapSession({ currentTarget: { dataset: { id: 's_demo_1' } } });
-      return true;
+      try {
+        page.onOpenInteractions({ currentTarget: { dataset: { type: 'like' } } });
+      } finally {
+        wx.navigateTo = orig;
+      }
+      return captured;
     });
-    expect(ok).toBe(true);
+    expect(routed).toEqual({ url: '/pages/interaction-list/interaction-list?type=like' });
   }, T);
 });
