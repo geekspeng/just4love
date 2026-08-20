@@ -1,6 +1,6 @@
 <view class="container report">
   <t-empty wx:if="{{submitted}}" description="举报已提交，我们会尽快处理">
-    <t-button slot="action" theme="primary" size="large" bind:tap="wx.navigateBack">返回</t-button>
+    <t-button slot="action" theme="primary" size="large" bind:tap="onBack">返回</t-button>
   </t-empty>
 
   <block wx:else>
