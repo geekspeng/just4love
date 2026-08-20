@@ -68,8 +68,11 @@ async function listProfilesByOpenid(openid, filter, page, pageSize, db) {
   const size = Math.min(MAX_PAGE_SIZE, Math.max(1, Math.floor(Number(pageSize) || DEFAULT_PAGE_SIZE)));
   // 无感排除：取我的全部 pass 目标；云数据库无 nin，采用「超额取回 + 内存过滤 + 内存切页」
   // （补偿量 = 全量无感数，保证任意页窗口精确；skip 移除，统一从头取）
-  const passed = await db.collection('interactions').where({ fromOpenid: openid, type: 'pass' }).get();
+  // wx-server-sdk 云函数端 get() 默认上限 100 条：pass 记录超 100 会导致排除不完整，显式取满上限
+  const passed = await db.collection('interactions')
+    .where({ fromOpenid: openid, type: 'pass' }).limit(1000).get();
   const passedIds = new Set(passed.data.map((d) => d.targetId));
+  // 量级假设：单页窗口 + 全量无感数使 fetchLimit ≤ 云数据库单次 get 上限 1000（当前规模远不及；超限时需改游标分页）
   const fetchLimit = (p - 1) * size + size + 1 + passedIds.size; // 页尾 + hasMore 探测 + 无感补偿
   const got = await db.collection('profiles')
     .where(buildWhere(db, filter, openid))
