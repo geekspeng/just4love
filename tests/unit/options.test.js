@@ -50,4 +50,8 @@ describe('utils/options', () => {
       ALBUM_MAX: 5, STORIES_MAX: 5, TAGS_PER_CATEGORY_MAX: 5, FAMILY_MAX: 12,
     });
   });
+
+  test('REPORT_TYPES 举报选项池（与云函数 report 字面量同步）', () => {
+    expect(o.REPORT_TYPES).toEqual(['虚假资料', '诈骗行为', '骚扰', '色情低俗', '其他']);
+  });
 });

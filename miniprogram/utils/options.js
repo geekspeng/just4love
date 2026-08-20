@@ -44,6 +44,9 @@ const STORY_TOPICS = [
   '未来五年规划', '我的爱情观', '难忘的友情', '家乡的味道',
 ];
 
+// 举报类型（与 cloudfunctions/report/index.js 的 REPORT_TYPES 字面量保持同步）
+const REPORT_TYPES = ['虚假资料', '诈骗行为', '骚扰', '色情低俗', '其他'];
+
 const LIMITS = {
   ALBUM_MAX: 5,
   STORIES_MAX: 5,
@@ -54,5 +57,5 @@ const LIMITS = {
 module.exports = {
   LOVE_GOALS, EMOTIONAL_STATUS, FAMILY_BACKGROUND, HABITS, EDUCATIONS, JOBS,
   HOUSE, CAR, INCOME,
-  ALBUM_CATEGORIES, TAG_POOLS, STORY_TOPICS, LIMITS,
+  ALBUM_CATEGORIES, TAG_POOLS, STORY_TOPICS, LIMITS, REPORT_TYPES,
 };
