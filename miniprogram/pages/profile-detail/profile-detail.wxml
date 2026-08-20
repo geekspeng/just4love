@@ -27,7 +27,7 @@
   <block wx:elif="{{profile}}">
     <profile-card profile="{{profile}}" verified="{{verified}}" />
 
-    <!-- 隐私区：self/admin 全量明文（未填写兜底）；他人已解锁子段明文；未解锁子段按 consents 状态给申请入口 -->
+    <!-- 隐私区：self/admin 全量明文（未填写兜底）；他人已解锁子段明文；未解锁子段各自给申请入口 -->
     <block wx:if="{{profile.privacy || self}}">
       <view class="detail__privacy">
         <t-cell-group theme="card">
@@ -38,10 +38,10 @@
         </t-cell-group>
       </view>
     </block>
-    <block wx:elif="{{!self}}">
-      <view class="detail__privacy">
-        <t-cell left-icon="user-locked" title="联系方式与资产" note="征求同意后可见" />
-        <!-- 联系方式申请 -->
+    <block wx:if="{{!self}}">
+      <view class="detail__privacy" wx:if="{{consents.contact !== 'approved' || consents.asset !== 'approved'}}">
+        <t-cell wx:if="{{consents.contact !== 'approved' && consents.asset !== 'approved'}}"
+                left-icon="user-locked" title="联系方式与资产" note="征求同意后可见" />
         <view class="detail__consent-row" wx:if="{{consents.contact !== 'approved'}}">
           <text class="detail__consent-label text-secondary">联系方式</text>
           <t-button wx:if="{{consents.contact === 'pending'}}" size="small" disabled>等待对方同意</t-button>
@@ -51,7 +51,6 @@
             {{consents.contact === 'revoked' ? '重新申请' : '申请查看'}}
           </t-button>
         </view>
-        <!-- 资产申请 -->
         <view class="detail__consent-row" wx:if="{{consents.asset !== 'approved'}}">
           <text class="detail__consent-label text-secondary">资产信息</text>
           <t-button wx:if="{{consents.asset === 'pending'}}" size="small" disabled>等待对方同意</t-button>
@@ -65,7 +64,7 @@
     </block>
 
     <!-- 按钮组：心动互配 / 聊天导流（解锁后复制联系方式）/ 无感（P3 激活） -->
-    <view class="detail__actions">
+    <view class="detail__actions" wx:if="{{!self}}">
       <t-button class="detail__btn" variant="outline" loading="{{interacting}}" bind:tap="onPass">无感</t-button>
       <t-button class="detail__btn" variant="outline" theme="primary" bind:tap="onChat">聊天</t-button>
       <t-button class="detail__btn" theme="primary" loading="{{interacting}}" bind:tap="onLike">心动</t-button>
