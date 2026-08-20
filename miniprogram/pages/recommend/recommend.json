@@ -3,6 +3,8 @@
   "enablePullDownRefresh": true,
   "usingComponents": {
     "profile-card": "/components/profile-card/index",
-    "filter-panel": "/components/filter-panel/index"
+    "filter-panel": "/components/filter-panel/index",
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-loading": "tdesign-miniprogram/loading/loading"
   }
 }

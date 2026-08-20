@@ -1,5 +1,5 @@
 <view class="container recommend">
-  <filter-panel bind:change="onFilterChange" />
+  <filter-panel class="recommend__filter" bind:change="onFilterChange" />
 
   <view class="recommend__list" wx:if="{{list.length}}">
     <profile-card
@@ -10,10 +10,11 @@
     />
   </view>
 
-  <view class="recommend__empty text-secondary" wx:if="{{!loading && !loadError && !list.length}}">
-    暂无符合条件的嘉宾，试试放宽筛选条件
+  <t-empty wx:if="{{!loading && !loadError && !list.length}}" class="recommend__empty"
+           description="暂无符合条件的嘉宾，试试放宽筛选条件" />
+  <t-empty wx:if="{{loadError}}" class="recommend__empty" description="加载失败，请下拉重试" />
+  <view class="recommend__loading" wx:if="{{loading}}">
+    <t-loading text="加载中…" size="40rpx" />
   </view>
-  <view class="recommend__empty text-secondary" wx:if="{{loadError}}">加载失败，请下拉重试</view>
-  <view class="recommend__more text-secondary" wx:if="{{loading}}">加载中…</view>
   <view class="recommend__more text-secondary" wx:if="{{!loading && hasMore && !loadError}}">上拉加载更多</view>
 </view>

@@ -9,6 +9,7 @@ import {
   connectOrLaunch,
   closeSession,
   pageData,
+  countSelector,
   runInApp,
   navTo,
   TEST_TIMEOUT as T,
@@ -84,6 +85,23 @@ describe('P2 遇见：浏览与配额 E2E（真实云函数）', () => {
     expect(await pageData<any>(mp, 'filter')).toEqual({ educations: ['本科'] });
     const list = await pageData<any[]>(mp, 'list');
     expect(list.every((it) => it.about.education === '本科')).toBe(true);
+  }, T);
+
+  it('筛选面板渲染 TDesign 组件（t-check-tag 全量在位）', async () => {
+    // App 级 evaluate 经页面 selectComponent 取组件实例展开面板（Page 级协议挂死）；
+    // 跨自定义组件边界的选择器用 >>>（tags-edit 先例）
+    const opened = await runInApp<boolean>(mp, () => {
+      const page = getCurrentPages().slice(-1)[0];
+      const panel = page.selectComponent('.recommend__filter');
+      if (!panel || typeof panel.onToggle !== 'function') return false;
+      if (!panel.data.expanded) panel.onToggle();
+      return true;
+    });
+    expect(opened).toBe(true);
+    // 注意：t-check-tag 内部渲染为 t-tag 节点（2026-08-19 探针实测），跨界选择器按 .t-tag 计
+    await waitFor(async () =>
+      (await countSelector(mp, '.recommend__filter >>> .t-tag')) >= 19 // 学历 5 + 婚姻 3 + 职业 11
+    );
   }, T);
 
   it('本人详情：self 视角隐私明文、quota 为 null、verified 徽标数据在位', async () => {

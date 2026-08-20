@@ -3,9 +3,17 @@
   flex-direction: column;
   gap: 20rpx;
 }
+.recommend__filter {
+  display: block;
+  margin-bottom: 20rpx;
+}
 .recommend__empty {
-  text-align: center;
   margin-top: 120rpx;
+}
+.recommend__loading {
+  display: flex;
+  justify-content: center;
+  padding: 24rpx 0;
 }
 .recommend__more {
   text-align: center;
