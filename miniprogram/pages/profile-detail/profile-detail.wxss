@@ -34,3 +34,15 @@
   font-size: 24rpx;
   margin-top: 24rpx;
 }
+.detail__consent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  background: #ffffff;
+  border-radius: var(--radius-card, 16rpx);
+  margin-top: 2rpx;
+}
+.detail__consent-label {
+  font-size: 26rpx;
+}
