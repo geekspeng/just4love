@@ -141,6 +141,31 @@ npm run test:e2e
 - [ ] 心动/聊天/无感/举报点击提示「即将开放」（P3 激活）
 - [ ] `npm test` 与 `npm run test:e2e` 全部通过
 
+## P3 部署与验收（互动与隐私授权）
+
+### 部署步骤
+
+1. **云函数**（IDE 右键「上传并部署：云端安装依赖」）：改动 3 个——`getProfileDetail`、
+   `listProfiles`、`setupDb`；新增 7 个——`interact`、`getInteractions`、`requestConsent`、
+   `respondConsent`、`getNotifications`、`markRead`、`report`。
+2. **初始化集合**：部署后调用一次 `setupDb`（幂等）——新增 `interactions`、`consents`、
+   `notifications`、`reports`、`quota_counters` 五个集合。
+3. **新集合权限**：云开发控制台设为「仅创建者可读写」。
+4. **配额计数已原子化**：并发首看不再可能超额（quota_counters 计数器 + 回退）。
+
+### 验收清单（对应设计文档 §6 与 §10）
+
+- [ ] 详情页心动/无感可用；互相心动双方收到匹配通知并引导申请联系方式
+- [ ] 无感后该嘉宾不再出现在遇见列表（翻页不串页）
+- [ ] 谁看过我/喜欢我的两个列表可用（去重、matched 标记）
+- [ ] 消息 tab 为真实通知流：未读红点 + tabBar 角标、点击已读、授权请求行内同意/拒绝
+- [ ] 隐私授权全链路：申请 → 对方同意 → 详情页解锁对应字段 → 撤销后重新隐藏；拒绝/撤销后可重新申请
+- [ ] 聊天按钮：联系方式解锁后展示并可复制微信号/手机号（导流微信，不自建 IM）
+- [ ] 举报表单可提交（类型/描述/截图 ≤3），落 `reports` 待 P4 处理
+- [ ] 未完善资料无法被直链/分享查看（basicInit 防御）
+- [ ] 详情页加载失败与嘉宾不存在分开展示（可重试）
+- [ ] `npm test` 与 `npm run test:e2e` 全部通过
+
 ## TypeScript
 
 E2E 测试用 TypeScript 编写（`tests/e2e/*.test.ts`），由 ts-jest 转换。

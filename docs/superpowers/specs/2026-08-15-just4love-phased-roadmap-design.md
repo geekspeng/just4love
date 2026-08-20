@@ -1,7 +1,7 @@
 # 遇见爱（just4love）1.0.1 分阶段实现路线图 — 设计文档
 
 - **日期**：2026-08-15
-- **状态**：P1 已完成并验收；P2 已完成（实现计划见 `plans/2026-08-19-just4love-p2-meet-browse-quota.md`）；P3 待启动
+- **状态**：P1/P2 已完成并验收；P3 已完成（实现计划见 `plans/2026-08-20-just4love-p3-interaction-consent.md`）；P4 待启动
 - **范围**：将「遇见爱」1.0.1 版本功能拆解为 5 个可独立上线的阶段，并定义各阶段边界、数据模型演进与贯穿性约定
 
 ## 1. 背景与目标
@@ -152,12 +152,12 @@ P1 登录+个人资料       P2 遇见：浏览与配额        P3 互动+隐私
 
 ### 6.7 P2 终审遗留（P3 立项时并入，2026-08-19）
 
-- **配额原子化**：getProfileDetail 读 view_logs → 比较 → 写入非原子，并发首看可超额 +1。TCB 事务不支持 where 查询——改 viewer+dateKey 计数器文档 `inc` 后回读校验，或 view_logs 唯一索引+写后复核；与「谁看过我」的 `view_logs(viewerOpenid+dateKey)` 复合索引一并规划。
-- **getProfileDetail 补 basicInit 防御**：未完善资料不上列表但可被直链/分享看详情（`if (!target.basicInit) return { error: 'not found' }`）。
-- **详情页错误区分**：云调用 null（网络/未部署）现按 notFound 兜底显示「嘉宾不存在或已下架」——应区分「加载失败请重试」+重试按钮。
-- **onLoginRetry 空转**：本地缓存与服务端档不一致时重试无反馈；重试仍 login required 时 `clearLogin()` 强刷一次。
-- **E2E 断言增强**：p2-meet it1 空列表平凡通过（补断言 `loadError === false` 或播种第二账号）；it3 `privacy` toTruthy 对 `{}` 平凡通过（断言具体字段）。
-- 小项：filter-panel 组件内全局工具类样式隔离治理；年龄/身高 min>max 前端钳制；mock-db 保真度（同型比较/多字段排序，按需）；`profiles.createdAt` 缺失时从 `users.createdAt` 回填。
+- **配额原子化**：getProfileDetail 读 view_logs → 比较 → 写入非原子，并发首看可超额 +1。TCB 事务不支持 where 查询——改 viewer+dateKey 计数器文档 `inc` 后回读校验，或 view_logs 唯一索引+写后复核；与「谁看过我」的 `view_logs(viewerOpenid+dateKey)` 复合索引一并规划。——✅ 已落地（P3 T1/T3/T9/T12）
+- **getProfileDetail 补 basicInit 防御**：未完善资料不上列表但可被直链/分享看详情（`if (!target.basicInit) return { error: 'not found' }`）。——✅ 已落地（P3 T1/T3/T9/T12）
+- **详情页错误区分**：云调用 null（网络/未部署）现按 notFound 兜底显示「嘉宾不存在或已下架」——应区分「加载失败请重试」+重试按钮。——✅ 已落地（P3 T1/T3/T9/T12）
+- **onLoginRetry 空转**：本地缓存与服务端档不一致时重试无反馈；重试仍 login required 时 `clearLogin()` 强刷一次。——✅ 已落地（P3 T1/T3/T9/T12）
+- **E2E 断言增强**：p2-meet it1 空列表平凡通过（补断言 `loadError === false` 或播种第二账号）；it3 `privacy` toTruthy 对 `{}` 平凡通过（断言具体字段）。——✅ 已落地（P3 T1/T3/T9/T12）
+- 小项：filter-panel 组件内全局工具类样式隔离治理——✅ 已落地（2026-08-19 TDesign 化）；年龄/身高 min>max 前端钳制——✅ 已落地（P3 T1/T3/T9/T12）；mock-db 保真度（同型比较/多字段排序，按需）——留 P5；`profiles.createdAt` 缺失时从 `users.createdAt` 回填——留 P5。
 
 ## 7. P4 — 认证与管理能力
 

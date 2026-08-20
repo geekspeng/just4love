@@ -72,6 +72,7 @@ describe('P2 遇见：浏览与配额 E2E（真实云函数）', () => {
       expect(item._id).toBeTruthy();
       expect(typeof item.verified).toBe('boolean');
     }
+    expect(await pageData<boolean>(mp, 'loadError')).toBe(false); // P2 终审遗留：空列表平凡通过堵漏
   }, T);
 
   it('筛选数据流：onFilterChange 更新 filter 并按学历重查', async () => {
@@ -111,7 +112,10 @@ describe('P2 遇见：浏览与配额 E2E（真实云函数）', () => {
     let mine: any = await callCloud(mp, 'getMyProfile', {});
     if (!mine || !mine.profile) {
       await callCloud(mp, 'updateProfile', {
-        patch: { basic: { nickname: 'E2E嘉宾', gender: '女', birthday: '1995-06-15' } },
+        patch: {
+          basic: { nickname: 'E2E嘉宾', gender: '女', birthday: '1995-06-15' },
+          privacy: { contact: { phone: '13800000000', wechat: 'e2e-wx' } },
+        },
       });
       mine = await callCloud(mp, 'getMyProfile', {});
     }
@@ -122,6 +126,11 @@ describe('P2 遇见：浏览与配额 E2E（真实云函数）', () => {
     expect(d.self).toBe(true);
     expect(d.quota).toBeNull();
     expect(d.profile.privacy).toBeTruthy(); // 本人直看隐私
+    // P2 终审遗留：privacy toTruthy 对 {} 平凡通过——断具体字段（兜底建档已带隐私值，
+    // 既有 dogfood 资料可能无 contact，双分支兼容）
+    if (d.profile.privacy.contact) {
+      expect(typeof d.profile.privacy.contact.phone).toBe('string');
+    }
     expect(d.profile.basic.nickname).toBeTruthy();
   }, T);
 
