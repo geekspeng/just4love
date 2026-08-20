@@ -1,0 +1,10 @@
+{
+  "name": "respondConsent",
+  "version": "1.0.0",
+  "description": "处理隐私授权：同意/拒绝/撤销",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "requestConsent",
+  "version": "1.0.0",
+  "description": "申请查看隐私字段",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}
