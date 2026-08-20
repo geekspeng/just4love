@@ -132,4 +132,45 @@ describe('cloudfunctions/getProfileDetail', () => {
     expect(res.verified).toBe(true);
     expect(res.profile.verified).toBe(true);
   });
+
+  test('未完善资料（basicInit=false）→ not found（P2 终审遗留防御）', async () => {
+    const db = seed({ normal: 5, verified: 15 });
+    // 造一份未完善资料
+    await db.collection('profiles').add({
+      data: { _id: 'p-raw', openid: 'o-raw', basicInit: false, basic: {}, about: {}, createdAt: '2026-08-20T00:00:00Z' },
+    });
+    const res = await getProfileDetailByOpenid('o-normal', 'p-raw', db);
+    expect(res).toEqual({ error: 'not found' });
+  });
+
+  test('超额后 quota_counters 回退到 limit（原子计数不留脏值）', async () => {
+    const db = seed({ normal: 2, verified: 3 });
+    await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    await getProfileDetailByOpenid('o-normal', 'p-o-t4', db);
+    const third = await getProfileDetailByOpenid('o-normal', 'p-o-t5', db);
+    expect(third.error).toBe('quota exceeded');
+    const counter = await db.collection('quota_counters').doc('o-normal_' + toDateKey(new Date())).get();
+    expect(counter.data.count).toBe(2); // 回退后 == limit
+  });
+
+  test('首次查看写「被查看」通知（快照含 guestNo），复看不重复写', async () => {
+    const db = seed({ normal: 5, verified: 15 });
+    await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
+    const notes = await db.collection('notifications').where({ toOpenid: 'o-t3' }).get();
+    expect(notes.data).toHaveLength(1);
+    expect(notes.data[0].type).toBe('view');
+    expect(notes.data[0].payload.guestNo).toBe('J0002'); // o-normal 的 guestNo
+    expect(notes.data[0].read).toBe(false);
+    await getProfileDetailByOpenid('o-normal', 'p-o-t3', db); // 复看
+    const again = await db.collection('notifications').where({ toOpenid: 'o-t3' }).get();
+    expect(again.data).toHaveLength(1);
+  });
+
+  test('self/admin 查看不写「被查看」通知', async () => {
+    const db = seed({ normal: 5, verified: 15 });
+    await getProfileDetailByOpenid('o-admin', 'p-o-t3', db);
+    await getProfileDetailByOpenid('o-owner', 'p-o-owner', db);
+    const notes = await db.collection('notifications').where({}).get();
+    expect(notes.data).toHaveLength(0);
+  });
 });

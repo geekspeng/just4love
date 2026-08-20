@@ -3,7 +3,10 @@
 // 部署后在小程序端或云控制台调用一次即可；集合已存在时 createCollection 报错属预期。
 // 注意：模块顶层不得 require('wx-server-sdk')（集成测试直接 require 本文件）。
 
-const COLLECTIONS = ['users', 'counters', 'profiles', 'config', 'view_logs'];
+const COLLECTIONS = [
+  'users', 'counters', 'profiles', 'config', 'view_logs',
+  'interactions', 'consents', 'notifications', 'reports', 'quota_counters',
+];
 const DEFAULT_QUOTAS = { normal: 5, verified: 15 };
 
 // 幂等写入 config/quotas：不存在则建默认，存在不动（控制台改过的不覆盖）

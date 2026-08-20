@@ -22,6 +22,32 @@ function toDateKey(d) {
   return new Date(d.getTime() + 8 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
+// 通知落库（部署根隔离：interact/requestConsent/respondConsent 各持一份同构实现，字段形状保持同步）
+async function notify(db, toOpenid, type, payload) {
+  await db.collection('notifications').add({
+    data: { toOpenid, type, payload, read: false, createdAt: new Date().toISOString() },
+  });
+}
+
+// 配额原子计数：inc 原子增后读回校验，超限即回退（并发下唯一计数入口，P2 终审遗留的原子化方案）
+// 已看目标的复用路径不进入本函数（view_logs 去重口径不变）。
+async function acquireQuota(db, openid, dateKey, limit) {
+  const counters = db.collection('quota_counters');
+  const id = openid + '_' + dateKey;
+  try {
+    await counters.doc(id).get();
+  } catch (e) {
+    await counters.doc(id).set({ data: { count: 0 } });
+  }
+  await counters.doc(id).update({ data: { count: db.command.inc(1) } });
+  const after = (await counters.doc(id).get()).data.count;
+  if (after > limit) {
+    await counters.doc(id).update({ data: { count: db.command.inc(-1) } });
+    return { ok: false, used: limit };
+  }
+  return { ok: true, used: after };
+}
+
 // CardVO：与 listProfiles 的 toCardVO 保持同构，改字段须两边同步
 function toCardVO(p, role) {
   return {
@@ -70,6 +96,9 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
     return { error: 'not found' };
   }
 
+  // 未完善资料不上列表也不可被直链/分享查看（P2 终审遗留防御）
+  if (!target.basicInit) return { error: 'not found' };
+
   // 目标用户角色 → verified 标识（查无用户按 normal）
   const tArr = await users.where({ openid: target.openid }).get();
   const targetRole = tArr.data.length > 0 ? tArr.data[0].role : 'normal';
@@ -94,8 +123,9 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
   if (seen.has(profileId)) {
     return { profile: toCardVO(target, targetRole), verified: isVerified, self: false, quota: { used: seen.size, limit } };
   }
-  if (seen.size >= limit) {
-    return { error: 'quota exceeded', quota: { used: seen.size, limit } };
+  const acquired = await acquireQuota(db, openid, dateKey, limit);
+  if (!acquired.ok) {
+    return { error: 'quota exceeded', quota: { used: limit, limit } };
   }
   await db.collection('view_logs').add({
     data: {
@@ -104,7 +134,15 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
       dateKey, createdAt: new Date().toISOString(),
     },
   });
-  return { profile: toCardVO(target, targetRole), verified: isVerified, self: false, quota: { used: seen.size + 1, limit } };
+  // 「被查看」通知（首次查看当天才走到这里；快照冗余 nickname/guestNo 免 join）
+  const myProfileArr = await db.collection('profiles').where({ openid }).get();
+  const myBasic = (myProfileArr.data[0] && myProfileArr.data[0].basic) || {};
+  await notify(db, target.openid, 'view', {
+    nickname: myBasic.nickname || '',
+    guestNo: myBasic.guestNo || me.guestNo || '',
+    profileId: myProfileArr.data[0] ? myProfileArr.data[0]._id : null,
+  });
+  return { profile: toCardVO(target, targetRole), verified: isVerified, self: false, quota: { used: acquired.used, limit } };
 }
 
 exports.main = async (event) => {
