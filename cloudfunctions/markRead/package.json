@@ -1,0 +1,9 @@
+{
+  "name": "markRead",
+  "version": "1.0.0",
+  "description": "通知已读标记",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
