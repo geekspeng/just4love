@@ -1,0 +1,39 @@
+<view class="container report">
+  <t-empty wx:if="{{submitted}}" description="举报已提交，我们会尽快处理">
+    <t-button slot="action" theme="primary" size="large" bind:tap="wx.navigateBack">返回</t-button>
+  </t-empty>
+
+  <block wx:else>
+    <view class="card report__card">
+      <view class="report__title">举报类型</view>
+      <view class="report__types">
+        <t-check-tag
+          wx:for="{{types}}"
+          wx:key="text"
+          content="{{item.text}}"
+          checked="{{item.on}}"
+          data-item="{{item.text}}"
+          bind:change="onToggleType"
+        />
+      </view>
+    </view>
+
+    <view class="card report__card">
+      <view class="report__title">举报描述</view>
+      <textarea class="report__textarea" value="{{description}}" maxlength="200"
+                placeholder="补充说明（必填，200 字内）" bindinput="onInputDesc" />
+    </view>
+
+    <view class="card report__card">
+      <view class="report__title">截图（可选，最多 3 张）</view>
+      <view class="report__shots">
+        <image wx:for="{{shots}}" wx:key="local" class="report__shot" src="{{item.local}}"
+               mode="aspectFill" data-index="{{index}}" bindlongpress="onRemoveShot" />
+        <view class="report__shot report__shot--add" bindtap="onAddShot">＋</view>
+      </view>
+      <view class="text-secondary report__hint">长按已上传截图可移除</view>
+    </view>
+
+    <t-button class="report__submit" theme="primary" block loading="{{submitting}}" disabled="{{submitting}}" bind:tap="onSubmit">提交举报</t-button>
+  </block>
+</view>

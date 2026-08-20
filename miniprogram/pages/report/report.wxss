@@ -1,0 +1,45 @@
+.report__card {
+  margin-bottom: 20rpx;
+}
+.report__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.report__types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.report__textarea {
+  width: 100%;
+  min-height: 160rpx;
+  font-size: 26rpx;
+}
+.report__shots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.report__shot {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
+}
+.report__shot--add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: var(--color-text-secondary, #999999);
+  border: 1rpx dashed #dddddd;
+  box-sizing: border-box;
+}
+.report__hint {
+  font-size: 22rpx;
+  margin-top: 12rpx;
+}
+.report__submit {
+  margin-top: 12rpx;
+}

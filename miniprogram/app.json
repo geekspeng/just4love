@@ -10,7 +10,8 @@
     "pages/profile-preview/profile-preview",
     "pages/settings/settings",
     "pages/agreement/agreement",
-    "pages/profile-detail/profile-detail"
+    "pages/profile-detail/profile-detail",
+    "pages/report/report"
   ],
   "window": {
     "backgroundTextStyle": "light",
