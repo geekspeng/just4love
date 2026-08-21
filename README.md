@@ -166,6 +166,42 @@ npm run test:e2e
 - [ ] 详情页加载失败与嘉宾不存在分开展示（可重试）
 - [ ] `npm test` 与 `npm run test:e2e` 全部通过
 
+## P4 部署与验收（认证与管理能力）
+
+### 部署步骤
+
+1. **云函数**（IDE 右键「上传并部署：云端安装依赖」）：改动 5 个——`setupDb`、`login`、
+   `getMyProfile`、`listProfiles`、`getProfileDetail`；新增 4 个——`submitVerification`、
+   `getMyVerifications`、`getGroupQr`、`admin`（管理后台聚合入口）。
+2. **初始化集合**：部署后调用一次 `setupDb`（幂等）——新增 `verifications` 集合，
+   权限设为「仅创建者可读写」。
+3. **管理员指定**：云开发控制台将运营者 `users` 文档 `role` 手改为 `admin`（mine 菜单出现「管理后台」）。
+4. **群二维码**：管理员进「管理后台 → 配置」上传群二维码（存 `config/groupQr`，认证用户可见）。
+
+### 要点
+
+- 三类认证（身份/学历/职业）任一通过即升级认证嘉宾（`users.role` → `verified`，配额 5→15 自动生效，
+  `verifiedTypes` 冗余进 users 供徽章/门槛直读）；`pending/approved` 重复提交幂等，`rejected` 可重新提交。
+- 嘉宾管理：`profiles.listed`（上下架，缺省视为上架）与 `profiles.forceHidden`（强制资料隐藏：
+  列表排除 + 详情直链 not found）两个独立开关，旧数据零迁移。
+- 举报处理：`hide` = 被举报人强制隐藏 + 举报结单 `resolved`；`ignore` = `ignored`。
+- 管理防线在 `admin` 云函数（role=admin 守卫），页面入口仅按缓存 role 控制；非管理员直链管理页
+  渲染「无权限」空态。
+- 管理员侧闭环（审核→升级→配额变化）由集成测试覆盖；E2E 覆盖认证提交/幂等、admin 守卫 forbidden、
+  群码未认证态、mine 菜单角色化（单测试号无法构造管理员视角，与 P3 同一声明口径）。
+
+### 验收清单（对应设计文档 §7 与 §10）
+
+- [ ] 认证页三类卡片可提交材料（1-3 张），状态流转 审核中/已认证/已驳回 正确展示
+- [ ] 管理后台：认证审核通过/驳回；任一通过后该用户升级认证嘉宾（每日查看 5→15 生效）
+- [ ] 管理后台：嘉宾搜索、上下架（遇见列表不再出现）、强制隐藏（详情直链 not found）、恢复
+- [ ] 管理后台：举报列表可隐藏（联动强制隐藏）/忽略
+- [ ] 管理后台：配额修改保存后立即生效；群二维码可上传更换
+- [ ] 交友群页：认证用户见二维码，未认证引导去认证
+- [ ] 设置页「推荐给好友」标准分享可用
+- [ ] mine 菜单：所有人见「我的认证/加入交友群」，仅管理员见「管理后台」
+- [ ] `npm test` 与 `npm run test:e2e` 全部通过
+
 ## TypeScript
 
 E2E 测试用 TypeScript 编写（`tests/e2e/*.test.ts`），由 ts-jest 转换。
