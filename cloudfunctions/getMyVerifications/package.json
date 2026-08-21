@@ -1,0 +1,10 @@
+{
+  "name": "getMyVerifications",
+  "version": "1.0.0",
+  "description": "我的认证状态（三类）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}

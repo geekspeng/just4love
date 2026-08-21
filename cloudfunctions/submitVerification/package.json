@@ -1,0 +1,10 @@
+{
+  "name": "submitVerification",
+  "version": "1.0.0",
+  "description": "提交认证材料（身份/学历/职业）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}

@@ -6,6 +6,7 @@
 const COLLECTIONS = [
   'users', 'counters', 'profiles', 'config', 'view_logs',
   'interactions', 'consents', 'notifications', 'reports', 'quota_counters',
+  'verifications',
 ];
 const DEFAULT_QUOTAS = { normal: 5, verified: 15 };
 
