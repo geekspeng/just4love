@@ -1,14 +1,20 @@
-// tests/integration/verifications.test.js —— 认证流：submitVerification / getMyVerifications
+// tests/integration/verifications.test.js —— 认证流：submitVerification / getMyVerifications / getGroupQr
 const { createMockDb } = require('../helpers/mock-db.js');
 const { submitVerificationByOpenid } = require('../../cloudfunctions/submitVerification/index.js');
 const { getMyVerificationsByOpenid } = require('../../cloudfunctions/getMyVerifications/index.js');
+const { getGroupQrByOpenid } = require('../../cloudfunctions/getGroupQr/index.js');
 
 function seed() {
   return createMockDb({
     users: {
       uA: { _id: 'uA', openid: 'o-a', role: 'normal', guestNo: 'J0001' },
+      uV: { _id: 'uV', openid: 'o-v', role: 'verified', guestNo: 'J0002' },
+      uAdmin: { _id: 'uAdmin', openid: 'o-admin', role: 'admin', guestNo: 'J0003' },
     },
     verifications: {},
+    config: {
+      groupQr: { _id: 'groupQr', fileID: 'cloud://qr.png', updatedAt: '2026-08-21T00:00:00Z' },
+    },
   });
 }
 
@@ -81,5 +87,19 @@ describe('cloudfunctions/getMyVerifications', () => {
       type: 'career', status: 'pending', materialFileIDs: ['cloud://c1'],
     });
     expect(res.list[2].createdAt).toBeTruthy();
+  });
+});
+
+describe('cloudfunctions/getGroupQr', () => {
+  test('游客/普通用户 → login required / forbidden；认证与管理员可见 fileID；未配置为 null', async () => {
+    const db = seed();
+    expect(await getGroupQrByOpenid('o-x', db)).toEqual({ error: 'login required' });
+    expect(await getGroupQrByOpenid('o-a', db)).toEqual({ error: 'forbidden' });
+    expect(await getGroupQrByOpenid('o-v', db)).toEqual({ fileID: 'cloud://qr.png' });
+    expect(await getGroupQrByOpenid('o-admin', db)).toEqual({ fileID: 'cloud://qr.png' });
+    const noQr = createMockDb({
+      users: { uV: { _id: 'uV', openid: 'o-v', role: 'verified', guestNo: 'J0002' } },
+    });
+    expect(await getGroupQrByOpenid('o-v', noQr)).toEqual({ fileID: null });
   });
 });

@@ -14,6 +14,14 @@ Page({
     ],
   },
 
+  // 推荐给好友：标准小程序分享（落地遇见页，游客走登录引导）
+  onShareAppMessage() {
+    return {
+      title: '遇见爱 · 靠谱相亲，从一份认真填写的资料开始',
+      path: '/pages/recommend/recommend',
+    };
+  },
+
   onTapMenu(e) {
     const { id } = e.currentTarget.dataset;
     if (['help', 'about', 'user', 'privacy'].indexOf(id) >= 0) {

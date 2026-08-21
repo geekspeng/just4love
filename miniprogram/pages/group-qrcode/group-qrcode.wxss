@@ -1,0 +1,17 @@
+.gqr__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 32rpx;
+}
+.gqr__img {
+  width: 480rpx;
+  height: 480rpx;
+}
+.gqr__hint {
+  font-size: 24rpx;
+  margin-top: 20rpx;
+}
+.gqr__empty {
+  margin-top: 80rpx;
+}

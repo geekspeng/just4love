@@ -11,3 +11,24 @@
   font-size: 24rpx;
   margin-top: 32rpx;
 }
+.settings__share {
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  margin-top: 20rpx;
+}
+.settings__share-btn {
+  /* 原生 button（open-type=share 不能用 t-button），抹平默认样式贴合 t-cell 行高 */
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  font-size: 32rpx;
+  text-align: left;
+  padding-left: 32rpx;
+  background: #ffffff;
+  color: var(--color-text-primary, #333333);
+  border-radius: 0;
+}
+.settings__share-btn::after {
+  border: none;
+}

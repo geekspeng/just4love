@@ -1,0 +1,15 @@
+<view class="container gqr">
+  <block wx:if="{{verified}}">
+    <view wx:if="{{qrFileID}}" class="card gqr__card">
+      <image class="gqr__img" src="{{qrFileID}}" mode="aspectFit" bindtap="onPreviewQr" />
+      <view class="text-secondary gqr__hint">长按或点开图片识别二维码进群</view>
+    </view>
+    <t-empty wx:elif="{{!loading}}" class="gqr__empty" description="群二维码暂未配置，请联系管理员" />
+  </block>
+
+  <block wx:else>
+    <t-empty class="gqr__empty" description="交友群仅对认证嘉宾开放">
+      <t-button slot="action" theme="primary" size="large" bind:tap="gotoVerify">去认证</t-button>
+    </t-empty>
+  </block>
+</view>

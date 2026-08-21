@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "我的认证",
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-empty": "tdesign-miniprogram/empty/empty",
+    "t-tag": "tdesign-miniprogram/tag/tag"
+  }
+}

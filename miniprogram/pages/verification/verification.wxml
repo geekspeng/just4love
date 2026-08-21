@@ -1,0 +1,37 @@
+<view class="container verify">
+  <view class="text-secondary verify__intro">任一认证通过即升级认证嘉宾：每日可查看嘉宾数 5 → 15，并解锁交友群</view>
+
+  <view class="card verify__card" wx:for="{{items}}" wx:for-item="item" wx:for-index="idx" wx:key="type">
+    <view class="verify__head">
+      <text class="verify__title">{{item.typeText}}</text>
+      <t-tag theme="{{item.statusTheme}}" variant="light" size="small">{{item.statusText}}</t-tag>
+    </view>
+
+    <block wx:if="{{item.editable}}">
+      <view class="text-secondary verify__hint">上传证明材料（1-3 张，如证件 / 证书 / 工牌照片）</view>
+      <view class="verify__shots">
+        <image wx:for="{{item.shots}}" wx:for-item="s" wx:key="local" class="verify__shot"
+               src="{{s.local}}" mode="aspectFill" data-idx="{{idx}}" data-local="{{s.local}}"
+               bindlongpress="onRemoveShot" />
+        <view class="verify__shot verify__shot--add" data-idx="{{idx}}" bindtap="onAddShot">＋</view>
+      </view>
+      <t-button size="small" theme="primary" variant="outline" loading="{{item.submitting}}"
+                data-idx="{{idx}}" bind:tap="onSubmit">
+        {{item.status === 'rejected' ? '重新提交' : '提交审核'}}
+      </t-button>
+    </block>
+
+    <block wx:else>
+      <view wx:if="{{item.materials.length}}" class="verify__shots">
+        <image wx:for="{{item.materials}}" wx:for-item="m" wx:key="*this" class="verify__shot"
+               src="{{m}}" mode="aspectFill" data-url="{{m}}" data-urls="{{item.materials}}"
+               bindtap="onPreview" />
+      </view>
+      <view class="text-secondary verify__hint">
+        {{item.status === 'pending' ? '材料已提交，等待管理员审核' : (item.status === 'approved' ? '已通过，认证生效' : '未通过，可重新提交材料')}}
+      </view>
+    </block>
+  </view>
+
+  <t-empty wx:if="{{!loading && !items.length}}" description="认证服务暂不可用，请稍后再试" />
+</view>

@@ -1,0 +1,92 @@
+.admin__tabs {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+}
+.admin__tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 26rpx;
+  color: var(--color-text-secondary, #999999);
+}
+.admin__tab--on {
+  color: var(--color-primary, #FF5A5F);
+  font-weight: 600;
+  border-bottom: 4rpx solid var(--color-primary, #FF5A5F);
+}
+.admin__card {
+  margin-bottom: 20rpx;
+}
+.admin__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.admin__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+.admin__who {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  margin-right: 16rpx;
+}
+.admin__name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+.admin__sub {
+  font-size: 24rpx;
+}
+.admin__shots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+.admin__shot {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 8rpx;
+  background: #f5f5f5;
+}
+.admin__actions {
+  display: flex;
+  gap: 16rpx;
+}
+.admin__search {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+.admin__input {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 12rpx 20rpx;
+  font-size: 26rpx;
+}
+.admin__input--num {
+  max-width: 160rpx;
+}
+.admin__quota-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+.admin__quota-label {
+  font-size: 26rpx;
+  width: 140rpx;
+}
+.admin__qr {
+  width: 320rpx;
+  height: 320rpx;
+  margin-bottom: 16rpx;
+}

@@ -12,7 +12,10 @@
     "pages/agreement/agreement",
     "pages/profile-detail/profile-detail",
     "pages/report/report",
-    "pages/interaction-list/interaction-list"
+    "pages/interaction-list/interaction-list",
+    "pages/verification/verification",
+    "pages/group-qrcode/group-qrcode",
+    "pages/admin/admin"
   ],
   "window": {
     "backgroundTextStyle": "light",

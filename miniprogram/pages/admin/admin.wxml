@@ -1,0 +1,122 @@
+<view class="container admin">
+  <t-empty wx:if="{{forbidden}}" description="无权限：管理后台仅管理员可用" />
+
+  <block wx:else>
+    <view class="admin__tabs">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="id"
+        class="admin__tab {{tab === item.id ? 'admin__tab--on' : ''}}"
+        data-tab="{{item.id}}"
+        bindtap="onTab"
+      >{{item.label}}</view>
+    </view>
+
+    <!-- 认证审核 -->
+    <block wx:if="{{tab === 'verifications'}}">
+      <view class="card admin__card" wx:for="{{verifications}}" wx:key="_id">
+        <view class="admin__row">
+          <view class="admin__who">
+            <text class="admin__name">{{item.nickname || '未命名'}}（{{item.guestNo}}）</text>
+            <text class="text-secondary admin__sub">{{item.typeText}}</text>
+          </view>
+          <t-tag theme="{{item.status === 'pending' ? 'warning' : (item.status === 'approved' ? 'success' : 'danger')}}"
+                 variant="light" size="small">
+            {{item.status === 'pending' ? '待审核' : (item.status === 'approved' ? '已通过' : '已驳回')}}
+          </t-tag>
+        </view>
+        <view class="admin__shots">
+          <image wx:for="{{item.materialFileIDs}}" wx:for-item="m" wx:key="*this" class="admin__shot"
+                 src="{{m}}" mode="aspectFill" data-url="{{m}}" data-urls="{{item.materialFileIDs}}"
+                 bindtap="onPreview" />
+        </view>
+        <view wx:if="{{item.status === 'pending'}}" class="admin__actions">
+          <t-button size="small" theme="primary" data-id="{{item._id}}" data-decision="approve"
+                    bind:tap="onReview">通过</t-button>
+          <t-button size="small" variant="outline" data-id="{{item._id}}" data-decision="reject"
+                    bind:tap="onReview">驳回</t-button>
+        </view>
+      </view>
+      <t-empty wx:if="{{!loading && !verifications.length}}" description="没有待处理的认证申请" />
+    </block>
+
+    <!-- 举报处理 -->
+    <block wx:if="{{tab === 'reports'}}">
+      <view class="card admin__card" wx:for="{{reports}}" wx:key="_id">
+        <view class="admin__row">
+          <view class="admin__who">
+            <text class="admin__name">{{item.targetNickname || '已删资料'}}（{{item.targetGuestNo}}）</text>
+            <text class="text-secondary admin__sub">{{item.type}} · {{item.description}}</text>
+          </view>
+          <t-tag theme="{{item.statusTheme}}" variant="light" size="small">{{item.statusText}}</t-tag>
+        </view>
+        <view wx:if="{{item.screenshotFileIDs.length}}" class="admin__shots">
+          <image wx:for="{{item.screenshotFileIDs}}" wx:for-item="m" wx:key="*this" class="admin__shot"
+                 src="{{m}}" mode="aspectFill" data-url="{{m}}" data-urls="{{item.screenshotFileIDs}}"
+                 bindtap="onPreview" />
+        </view>
+        <view wx:if="{{item.status === 'pending'}}" class="admin__actions">
+          <t-button size="small" theme="primary" data-id="{{item._id}}" data-handle="hide"
+                    bind:tap="onHandleReport">隐藏资料</t-button>
+          <t-button size="small" variant="outline" data-id="{{item._id}}" data-handle="ignore"
+                    bind:tap="onHandleReport">忽略</t-button>
+        </view>
+      </view>
+      <t-empty wx:if="{{!loading && !reports.length}}" description="没有待处理的举报" />
+    </block>
+
+    <!-- 嘉宾管理 -->
+    <block wx:if="{{tab === 'guests'}}">
+      <view class="admin__search">
+        <input class="admin__input" value="{{keyword}}" placeholder="按嘉宾编号 / 昵称搜索"
+               confirm-type="search" bindinput="onKeywordInput" bindconfirm="loadGuests" />
+        <t-button size="small" variant="outline" theme="primary" bind:tap="loadGuests">搜索</t-button>
+      </view>
+      <view class="card admin__card" wx:for="{{guests}}" wx:key="profileId">
+        <view class="admin__row">
+          <view class="admin__who">
+            <text class="admin__name">{{item.nickname || '未命名'}}（{{item.guestNo}}）</text>
+            <text class="text-secondary admin__sub">
+              {{item.role === 'normal' ? '普通' : (item.role === 'verified' ? '认证' : '管理员')}}
+              {{item.forceHidden ? ' · 已强制隐藏' : (item.listed ? '' : ' · 已下架')}}
+            </text>
+          </view>
+        </view>
+        <view class="admin__actions">
+          <t-button size="small" variant="outline" data-id="{{item.profileId}}" data-field="listed"
+                    bind:tap="onToggleFlag">{{item.listed ? '下架' : '上架'}}</t-button>
+          <t-button size="small" variant="outline" data-id="{{item.profileId}}" data-field="forceHidden"
+                    bind:tap="onToggleFlag">{{item.forceHidden ? '恢复展示' : '强制隐藏'}}</t-button>
+        </view>
+      </view>
+      <t-empty wx:if="{{!loading && !guests.length}}" description="没有匹配的嘉宾" />
+    </block>
+
+    <!-- 配置：配额 + 群二维码 -->
+    <block wx:if="{{tab === 'config'}}">
+      <view class="card admin__card">
+        <view class="admin__title">每日查看配额</view>
+        <view class="admin__quota-row">
+          <text class="admin__quota-label">普通用户</text>
+          <input class="admin__input admin__input--num" type="number" value="{{quotas.normal}}"
+                 data-key="normal" bindinput="onQuotaInput" />
+        </view>
+        <view class="admin__quota-row">
+          <text class="admin__quota-label">认证用户</text>
+          <input class="admin__input admin__input--num" type="number" value="{{quotas.verified}}"
+                 data-key="verified" bindinput="onQuotaInput" />
+        </view>
+        <t-button size="small" theme="primary" loading="{{savingQuotas}}" bind:tap="onSaveQuotas">保存配额</t-button>
+      </view>
+
+      <view class="card admin__card">
+        <view class="admin__title">交友群二维码（认证用户可见）</view>
+        <image wx:if="{{groupQrFileID}}" class="admin__qr" src="{{groupQrFileID}}" mode="aspectFit"
+               bindtap="onPreviewQr" />
+        <view wx:else class="text-secondary admin__sub">未配置</view>
+        <t-button size="small" variant="outline" theme="primary" loading="{{uploadingQr}}"
+                  bind:tap="onChooseQr">{{groupQrFileID ? '更换二维码' : '上传二维码'}}</t-button>
+      </view>
+    </block>
+  </block>
+</view>

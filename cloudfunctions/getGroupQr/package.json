@@ -1,0 +1,10 @@
+{
+  "name": "getGroupQr",
+  "version": "1.0.0",
+  "description": "交友群二维码（仅认证用户）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "private": true
+}

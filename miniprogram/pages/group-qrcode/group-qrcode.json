@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "加入交友群",
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-empty": "tdesign-miniprogram/empty/empty"
+  }
+}

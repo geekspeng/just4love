@@ -11,5 +11,8 @@
       bind:click="onTapMenu"
     />
   </view>
+  <view class="card settings__share">
+    <button class="settings__share-btn" open-type="share">推荐给好友</button>
+  </view>
   <view class="text-secondary settings__ver">遇见爱 v1.0.1</view>
 </view>
