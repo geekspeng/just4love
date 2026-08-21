@@ -133,4 +133,15 @@ describe('cloudfunctions/listProfiles', () => {
     const res = await listProfilesByOpenid('o-viewer', {}, 1, 10, db);
     expect(res.list.map((x) => x._id)).toEqual(['pA']);
   });
+
+  test('下架嘉宾不出现在列表（listed:false 排除；缺省视为上架）', async () => {
+    const db = createMockDb({
+      profiles: {
+        pOn: profile('pOn', 'o-on', '2026-08-02T00:00:00Z'),
+        pOff: profile('pOff', 'o-off', '2026-08-01T00:00:00Z', { listed: false }),
+      },
+    });
+    const res = await listProfilesByOpenid('o-viewer', {}, 1, 10, db);
+    expect(res.list.map((x) => x._id)).toEqual(['pOn']); // pOff 被下架排除
+  });
 });

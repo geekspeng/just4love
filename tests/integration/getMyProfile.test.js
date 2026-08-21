@@ -32,4 +32,12 @@ describe('cloudfunctions/getMyProfile', () => {
     expect(res.profile.basic.nickname).toBe('小鱼');
     expect(res.user.userId).toBe('u1');
   });
+
+  test('认证用户的 verifiedTypes 直出（UserVO 与 login 同构）', async () => {
+    const db = createMockDb({
+      users: { u1: { _id: 'u1', openid: 'openid-a', phone: '', role: 'verified', guestNo: 'J0001', verifiedTypes: ['identity', 'career'] } },
+    });
+    const res = await getMyProfileByOpenid('openid-a', db);
+    expect(res.user.verifiedTypes).toEqual(['identity', 'career']);
+  });
 });

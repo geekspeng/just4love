@@ -16,6 +16,7 @@ function toUserVO(u) {
   return {
     userId: u._id, openid: u.openid, phone: u.phone || '',
     role: u.role, guestNo: u.guestNo,
+    verifiedTypes: Array.isArray(u.verifiedTypes) ? u.verifiedTypes : [], // P4 认证徽章/门槛直读（与 login 同构）
   };
 }
 

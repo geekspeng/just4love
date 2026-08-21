@@ -80,7 +80,8 @@ async function listProfilesByOpenid(openid, filter, page, pageSize, db) {
     .skip(0)
     .limit(fetchLimit)
     .get();
-  const filtered = got.data.filter((r) => !passedIds.has(r._id));
+  // 无感排除 + 下架排除（listed 缺省视为上架，旧数据零迁移）
+  const filtered = got.data.filter((r) => r.listed !== false && !passedIds.has(r._id));
   const hasMore = filtered.length > p * size;
   const rows = hasMore ? filtered.slice(0, p * size) : filtered;
   const pageRows = rows.slice((p - 1) * size, p * size);

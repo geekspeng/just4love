@@ -197,4 +197,16 @@ describe('cloudfunctions/getProfileDetail', () => {
     const again = await getProfileDetailByOpenid('o-normal', 'p-o-t3', db);
     expect(again.profile.privacy.contact.phone).toBe('13800000000');
   });
+
+  test('强制资料隐藏（forceHidden）：直链/分享一律 not found，管理员与本人同样不可见（P4 举报处置）', async () => {
+    const db = seed();
+    await db.collection('profiles').doc('p-o-t3').update({ data: { forceHidden: true } });
+    expect(await getProfileDetailByOpenid('o-normal', 'p-o-t3', db)).toEqual({ error: 'not found' });
+    expect(await getProfileDetailByOpenid('o-admin', 'p-o-t3', db)).toEqual({ error: 'not found' });
+    // 不占配额不写日志
+    const logs = await db.collection('view_logs').where({ viewerOpenid: 'o-normal' }).get();
+    expect(logs.data).toHaveLength(0);
+    const counters = await db.collection('quota_counters').where({}).get();
+    expect(counters.data).toHaveLength(0);
+  });
 });

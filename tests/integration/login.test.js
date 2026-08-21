@@ -39,6 +39,17 @@ describe('cloudfunctions/login', () => {
   test('user VO 字段精确（不泄漏内部字段）', async () => {
     const db = createMockDb();
     const { user } = await loginWithOpenid('openid-a', db);
-    expect(Object.keys(user).sort()).toEqual(['guestNo', 'openid', 'phone', 'role', 'userId']);
+    expect(Object.keys(user).sort()).toEqual(['guestNo', 'openid', 'phone', 'role', 'userId', 'verifiedTypes']);
+    expect(user.verifiedTypes).toEqual([]); // 未认证为空数组
+  });
+
+  test('认证升级后的用户登录：verifiedTypes 直出', async () => {
+    const db = createMockDb({
+      users: { u1: { _id: 'u1', openid: 'openid-a', phone: '', role: 'verified', guestNo: 'J0001', verifiedTypes: ['identity'] } },
+    });
+    const { user, isNew } = await loginWithOpenid('openid-a', db);
+    expect(isNew).toBe(false);
+    expect(user.role).toBe('verified');
+    expect(user.verifiedTypes).toEqual(['identity']);
   });
 });

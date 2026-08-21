@@ -116,6 +116,8 @@ async function getProfileDetailByOpenid(openid, profileId, db) {
 
   // 未完善资料不上列表也不可被直链/分享查看（P2 终审遗留防御）
   if (!target.basicInit) return { error: 'not found' };
+  // 强制资料隐藏（P4 举报处置/管理页）：直链/分享一律 not found（管理员同口径，管理页走 listGuests）
+  if (target.forceHidden) return { error: 'not found' };
 
   // 目标用户角色 → verified 标识（查无用户按 normal）
   const tArr = await users.where({ openid: target.openid }).get();
