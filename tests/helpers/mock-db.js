@@ -68,6 +68,38 @@ function createMockDb(initial = {}) {
     collection(name) {
       store[name] = store[name] || {};
       const col = store[name];
+      // 链式 orderBy/skip/limit 只记录，get() 时统一执行（filter → sort → skip → limit）
+      const makeChain = (query) => {
+        const ops = { orderBy: null, skip: 0, limit: Infinity };
+        const chain = {
+          orderBy: (field, order) => { ops.orderBy = { field, order }; return chain; },
+          skip: (n) => { ops.skip = n; return chain; },
+          limit: (n) => { ops.limit = n; return chain; },
+          get: async () => {
+            let docs = Object.values(col).filter((d) =>
+              Object.keys(query).every((k) => {
+                const cond = query[k];
+                const val = getByPath(d, k);
+                return isCmd(cond) ? matchCmd(cond, val) : val === cond;
+              })
+            );
+            if (ops.orderBy) {
+              const { field, order } = ops.orderBy;
+              // 缺字段文档按最小值参与排序（本项目排序列 createdAt 均存在，此语义仅兜底）
+              const norm = (v) => (v === undefined ? -Infinity : v);
+              docs = docs.slice().sort((a, b) => {
+                const cmp = norm(getByPath(a, field)) < norm(getByPath(b, field)) ? -1
+                  : norm(getByPath(a, field)) > norm(getByPath(b, field)) ? 1 : 0;
+                return order === 'desc' ? -cmp : cmp;
+              });
+            }
+            if (ops.skip > 0) docs = docs.slice(ops.skip);
+            if (Number.isFinite(ops.limit)) docs = docs.slice(0, ops.limit);
+            return { data: docs.map(clone) };
+          },
+        };
+        return chain;
+      };
       return {
         add: async ({ data }) => {
           const id = data._id || 'id_' + name + '_' + (Object.keys(col).length + 1);
@@ -97,38 +129,12 @@ function createMockDb(initial = {}) {
             return { deleted: 1 };
           },
         }),
-        where: (query) => {
-          // 链式 orderBy/skip/limit 只记录，get() 时统一执行（filter → sort → skip → limit）
-          const ops = { orderBy: null, skip: 0, limit: Infinity };
-          const chain = {
-            orderBy: (field, order) => { ops.orderBy = { field, order }; return chain; },
-            skip: (n) => { ops.skip = n; return chain; },
-            limit: (n) => { ops.limit = n; return chain; },
-            get: async () => {
-              let docs = Object.values(col).filter((d) =>
-                Object.keys(query).every((k) => {
-                  const cond = query[k];
-                  const val = getByPath(d, k);
-                  return isCmd(cond) ? matchCmd(cond, val) : val === cond;
-                })
-              );
-              if (ops.orderBy) {
-                const { field, order } = ops.orderBy;
-                // 缺字段文档按最小值参与排序（本项目排序列 createdAt 均存在，此语义仅兜底）
-                const norm = (v) => (v === undefined ? -Infinity : v);
-                docs = docs.slice().sort((a, b) => {
-                  const cmp = norm(getByPath(a, field)) < norm(getByPath(b, field)) ? -1
-                    : norm(getByPath(a, field)) > norm(getByPath(b, field)) ? 1 : 0;
-                  return order === 'desc' ? -cmp : cmp;
-                });
-              }
-              if (ops.skip > 0) docs = docs.slice(ops.skip);
-              if (Number.isFinite(ops.limit)) docs = docs.slice(0, ops.limit);
-              return { data: docs.map(clone) };
-            },
-          };
-          return chain;
-        },
+        where: (query) => makeChain(query),
+        // collection 级 orderBy/skip/limit/get（真实 SDK 支持，等价于空 where 全量链）
+        orderBy: (field, order) => makeChain({}).orderBy(field, order),
+        skip: (n) => makeChain({}).skip(n),
+        limit: (n) => makeChain({}).limit(n),
+        get: () => makeChain({}).get(),
       };
     },
   };
