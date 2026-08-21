@@ -230,7 +230,7 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
     await mp.switchTab('/pages/mine/mine');
     const menus = await pageData<{ id: string; label: string }[]>(mp, 'menus');
     expect(menus.map((m) => m.id)).toEqual([
-      'edit', 'album', 'story', 'tags', 'preview', 'settings',
+      'edit', 'album', 'story', 'tags', 'preview', 'verify', 'group', 'settings',
     ]);
     const user = await pageData<{ guestNo: string }>(mp, 'user');
     expect(user.guestNo).toMatch(/^J\d{4}$/);
