@@ -3,8 +3,7 @@
  * 断言数据结构与顶部入口交互；不再有 P2 前的 mock 会话（sessions/小鱼）。
  */
 import {
-  connectOrLaunch,
-  closeSession,
+  getSharedSession,
   currentRoute,
   pageData,
   runInApp,
@@ -18,11 +17,9 @@ describe('消息页 E2E', () => {
   let mp: MiniProgram;
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('进入消息页', async () => {
     await mp.switchTab('/pages/message/message');

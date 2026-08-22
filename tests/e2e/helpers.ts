@@ -84,6 +84,18 @@ export interface ConnectedSession {
   miniProgram: MiniProgram;
 }
 
+// 共享会话 stash：--runInBand 下 jest 每文件重建模块注册表（模块级变量跨不了文件），
+// 但 process 是同一真实对象——挂在 process 上即可跨测试文件共享（teardown.js 也读它）
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Process {
+      __j4lE2eSession?: ConnectedSession;
+    }
+  }
+}
+
 /**
  * 连接或启动自动化会话：
  *   - 端口通且协议就绪（Tool.getInfo 有 SDKVersion）→ automator.connect
@@ -92,13 +104,11 @@ export interface ConnectedSession {
  *   a) launch 的 checkVersion 在 IDE 未就绪时对 undefined 调 split 崩 → 捕获后
  *      以协议级探测轮询就绪（≤120s）再 connect；
  *   b) 对刚 launch 成功的会话切忌 close() 后重连——会把自动化服务打进
- *      「端口在、连接即断」的坏态；closeSession 只在每个测试文件的 afterAll 调。
+ *      「端口在、连接即断」的坏态；全程只由 teardown.js 统一 close 一次。
  * 会话建立后做一次 evaluate 探活，失败视为半初始化 → quit + 冷却后整轮重来（≤3 次）。
- * 用法：
- *   const session = await connectOrLaunch();
- *   afterAll(() => closeSession(session));
+ * 仅供 getSharedSession 内部调用建立会话，测试文件勿直接使用。
  */
-export async function connectOrLaunch(): Promise<ConnectedSession> {
+async function connectOrLaunch(): Promise<ConnectedSession> {
   if (!existsSync(config.cliPath)) {
     throw new Error(
       `未找到微信开发者工具 CLI：${config.cliPath}\n` +
@@ -169,16 +179,45 @@ export async function connectOrLaunch(): Promise<ConnectedSession> {
 }
 
 /**
- * 会话清理（每个测试文件的 afterAll 调用）：关闭自动化会话。
- * 注意：connect 到的会话也会被关闭——若你正手动开着 DevTools 调试，跑 e2e 前请自行保存。
- *
- * miniProgram.close() 只结束自动化会话，DevTools 主进程仍存活（实测），
- * IDE 的退出由 jest globalTeardown（e2e-teardown.js 的 cli quit）统一完成——
- * 不能在 per-file 的 afterAll 里 quit，否则下一个测试文件 launch 时会撞上正在退出的 IDE。
+ * 获取全程共享的自动化会话（每个测试文件的 beforeAll 调；teardown.js 统一关闭）：
+ *   - 首个套件建立会话（launch/connect，含冷启动竞态兜底）挂到 process；
+ *   - 后续套件探活通过直接复用——全程一次建立、一次关闭。
+ * 为何不再 per-file close：实测 close→重连会把自动化服务打进「端口在、连接即断」坏态；
+ * 且共享后会话永远单所有者，重试清理里的 cli quit 不会再误杀邻居套件的 IDE。
+ * 会话中途死掉（如 Connection closed）→ 探活失败自动重建，不影响后续套件。
+ * 注意：miniProgram.close() 只结束自动化会话不杀 IDE 进程，IDE 退出由
+ * teardown.js 的 cli quit 统一做一次（勿挪回任何测试文件的 afterAll）。
  */
-export async function closeSession(session: ConnectedSession | undefined): Promise<void> {
-  if (!session) return;
-  await session.miniProgram.close();
+export async function getSharedSession(): Promise<ConnectedSession> {
+  if (process.env.JEST_WORKER_ID) {
+    throw new Error(
+      'E2E 须 --runInBand 运行：共享会话挂在 process 上，多 worker 会各持一份并争抢自动化端口。请用 npm run test:e2e'
+    );
+  }
+  const stashed = process.__j4lE2eSession;
+  if (stashed) {
+    try {
+      const pong = await Promise.race([
+        stashed.miniProgram.evaluate(() => 1 + 1),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('共享会话探活超时')), 5000)
+        ),
+      ]);
+      if (pong === 2) {
+        console.log('[e2e] 复用共享会话');
+        return stashed;
+      }
+      throw new Error('探活响应异常: ' + String(pong));
+    } catch (e) {
+      console.warn(`[e2e] 共享会话已失活（${String(e).slice(0, 80)}），重建`);
+      try { await stashed.miniProgram.close(); } catch { /* 死会话，close 失败忽略 */ }
+      delete process.__j4lE2eSession;
+    }
+  }
+  const session = await connectOrLaunch();
+  process.__j4lE2eSession = session;
+  console.log('[e2e] 新建会话（全程共享，teardown 统一关闭）');
+  return session;
 }
 
 // ---- 断言原语（全部走 evaluate，勿改回 page.$ 通道）----

@@ -4,10 +4,10 @@
  * 嘉宾 flags、配额保存等管理闭环由集成测试（mock 任意 openid/role）全覆盖；
  * 本文件覆盖本端可达路径：认证页表单校验与状态渲染、认证云函数状态机（直连）、
  * admin 守卫（forbidden）、管理页直链无权限态、群码页未认证态、mine 菜单角色化。
- * helper 与 p1/p2/p3 文件同款（file-local 约定，保持各文件自包含可独跑）。
+ * 会话走 helpers.getSharedSession() 全程共享（一次建立/一次关闭，teardown 统一收口）；本文件用例仍可单独指定运行。
  */
 import {
-  connectOrLaunch, closeSession, pageData, runInApp, navTo,
+  getSharedSession, pageData, runInApp, navTo,
   TEST_TIMEOUT as T, MiniProgram, ConnectedSession,
 } from './helpers';
 
@@ -52,15 +52,13 @@ describe('P4 认证与管理 E2E（真实云函数）', () => {
   let mp: MiniProgram;
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
     const setup = await callCloud(mp, 'setupDb', {});
     if (setup && setup.error) throw new Error('setupDb failed: ' + JSON.stringify(setup));
     const login = await callCloud(mp, 'login', {});
     expect(login && login.user).toBeTruthy();
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('认证页：三类卡片加载（初始 none）；未选图提交被前端拦截不落库', async () => {
     await navTo(mp, '/pages/verification/verification');

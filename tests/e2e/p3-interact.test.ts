@@ -2,10 +2,10 @@
  * P3 互动与隐私授权 E2E —— 真实云函数（App 级通道，遵守 e2e-test skill）
  * 单测试号无法构造对方视角：互配/被通知/owner 同意由集成测试覆盖；
  * 本文件覆盖本端可达路径：interact 落库、授权申请幂等、通知流渲染、举报全链路。
- * helper 与 p1/p2 文件同款（file-local 约定，保持各文件自包含可独跑）。
+ * 会话走 helpers.getSharedSession() 全程共享（一次建立/一次关闭，teardown 统一收口）；本文件用例仍可单独指定运行。
  */
 import {
-  connectOrLaunch, closeSession, pageData, runInApp, navTo,
+  getSharedSession, pageData, runInApp, navTo,
   TEST_TIMEOUT as T, MiniProgram, ConnectedSession,
 } from './helpers';
 
@@ -41,7 +41,7 @@ describe('P3 互动与隐私授权 E2E（真实云函数）', () => {
   let targetProfileId = ''; // 环境中任一非本人嘉宾（无则用本人 id 测 forbidden/cannot-self 路径）
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
     const setup = await callCloud(mp, 'setupDb', {});
     if (setup && setup.error) throw new Error('setupDb failed: ' + JSON.stringify(setup));
@@ -59,8 +59,6 @@ describe('P3 互动与隐私授权 E2E（真实云函数）', () => {
     const other = (list.list || []).find((it: any) => it._id !== myProfileId);
     targetProfileId = other ? other._id : myProfileId; // 无他人时走 cannot-self 分支断言
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('interact：对自己 → cannot interact self；对他人心动 → 落库返回 matched=false', async () => {
     const self = await callCloud(mp, 'interact', { targetProfileId: myProfileId, type: 'like' });

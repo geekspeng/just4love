@@ -6,8 +6,7 @@
  * 「遇见」tab（recommend）已接入真实列表（P2），保留结构性断言。
  */
 import {
-  connectOrLaunch,
-  closeSession,
+  getSharedSession,
   currentRoute,
   pageData,
   countSelector,
@@ -86,11 +85,9 @@ describe('P1 登录与资料 E2E（真实云函数）', () => {
   const savedRegion = '广东省 深圳市';
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('真实登录：清缓存冷启动触发 login 云函数，建立/恢复用户与嘉宾编号', async () => {
     await runInApp(mp, () => {

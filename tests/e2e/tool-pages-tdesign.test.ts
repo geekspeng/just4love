@@ -1,6 +1,5 @@
 import {
-  connectOrLaunch,
-  closeSession,
+  getSharedSession,
   currentRoute,
   countSelector,
   navTo,
@@ -26,11 +25,9 @@ describe('工具页 TDesign 接入 E2E', () => {
   let mp: MiniProgram;
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('settings 页菜单渲染为 t-cell', async () => {
     await navTo(mp, '/pages/settings/settings');

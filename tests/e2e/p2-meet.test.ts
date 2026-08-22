@@ -6,8 +6,7 @@
  * 保持每个 e2e 文件自包含可独跑；此处复制沿用同一约定）。
  */
 import {
-  connectOrLaunch,
-  closeSession,
+  getSharedSession,
   pageData,
   countSelector,
   runInApp,
@@ -47,14 +46,12 @@ describe('P2 遇见：浏览与配额 E2E（真实云函数）', () => {
   let mp: MiniProgram;
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
     // 幂等初始化（代替人工调 setupDb）：建 config/view_logs 集合 + 种子配额
     const setup = await callCloud(mp, 'setupDb', {});
     if (setup && setup.error) throw new Error('setupDb failed: ' + JSON.stringify(setup));
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('遇见列表：清缓存冷启动后加载真实数据，列表项为脱敏 CardVO', async () => {
     await runInApp(mp, () => {

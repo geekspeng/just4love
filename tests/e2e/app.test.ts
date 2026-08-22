@@ -4,8 +4,7 @@
  * 新功能 E2E 测试请参考本文件的结构，或使用项目 skill：e2e-test。
  */
 import {
-  connectOrLaunch,
-  closeSession,
+  getSharedSession,
   currentRoute,
   pageData,
   countSelector,
@@ -20,11 +19,9 @@ describe('just4love E2E', () => {
   let mp: MiniProgram;
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
   }, 120000);
-
-  afterAll(() => closeSession(session));
 
   it('启动后默认落在「遇见」页', async () => {
     expect(await currentRoute(mp)).toContain('recommend');
