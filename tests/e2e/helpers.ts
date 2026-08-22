@@ -189,7 +189,13 @@ async function connectOrLaunch(): Promise<ConnectedSession> {
  * teardown.js 的 cli quit 统一做一次（勿挪回任何测试文件的 afterAll）。
  */
 export async function getSharedSession(): Promise<ConnectedSession> {
-  if (process.env.JEST_WORKER_ID) {
+  // runInBand 守卫：--runInBand 下测试与 jest 主进程同进程（argv 带 --runInBand），
+  // process 上的 stash 才能跨文件共享；worker 模式各 worker 独立进程会各起 IDE 抢端口。
+  // 注意 JEST_WORKER_ID 在 in-band 下也为 '1'，不能用作判据（2026-08-22 实测）。
+  const inBand =
+    process.env.JEST_WORKER_ID === undefined ||
+    process.argv.some((a) => a === '--runInBand' || a === '-i' || a.startsWith('--runInBand='));
+  if (!inBand) {
     throw new Error(
       'E2E 须 --runInBand 运行：共享会话挂在 process 上，多 worker 会各持一份并争抢自动化端口。请用 npm run test:e2e'
     );

@@ -44,8 +44,9 @@
     原样保留）→ 写入 stash → 返回，日志 `[e2e] 新建会话`；旧 stash 若为死会话先防御性
     close（异常吞掉）。
 - `connectOrLaunch` 收为模块内部函数，不再导出；`closeSession` 删除导出。
-- runInBand 守卫：`process.env.JEST_WORKER_ID` 非空即 throw，提示用 `npm run test:e2e`
-  （防多 worker 各自 launch 抢 9420 端口）。
+- runInBand 守卫：非 in-band 即 throw，提示用 `npm run test:e2e`（防多 worker 各自 launch
+  抢 9420 端口）。判据用 `process.argv` 是否含 `--runInBand`/`-i`——实测 `JEST_WORKER_ID`
+  在 in-band 下也为 `'1'`，不能用作判据（2026-08-22 双套件验证时发现并修正）。
 
 ### teardown.js（全局唯一收口）
 
