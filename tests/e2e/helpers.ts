@@ -11,8 +11,53 @@
  */
 import { existsSync } from 'fs';
 import net from 'net';
+import { execFile } from 'child_process';
 import automator from 'miniprogram-automator';
 import config from '../e2e.config';
+
+// 子进程执行（重试清理里 quit IDE 用）
+const execFileAsync = (cmd: string, args: string[]) =>
+  new Promise<void>((resolve, reject) => {
+    execFile(cmd, args, (err) => (err ? reject(err) : resolve()));
+  });
+
+/**
+ * 协议级就绪探测：原始 websocket 发 Tool.getInfo，SDKVersion 非空才算 IDE 可用。
+ * 背景（2026-08-21 实测）：IDE 冷启动 >30s，automator.launch 在端口一开就发
+ * Tool.getInfo，未就绪的 IDE 返回空 result → checkVersion 对 undefined 调 split 崩。
+ * 先用本探测等就绪、再 automator.connect，绕开 automator 的 launch 握手竞态。
+ */
+function probeIdeReady(port: number, timeoutMs = 6000): Promise<boolean> {
+  return new Promise((resolve) => {
+    let ws: { close: () => void; send: (d: string) => void; on: (ev: string, fn: (arg?: unknown) => void) => void } | null = null;
+    const done = (ok: boolean) => {
+      try { ws && ws.close(); } catch { /* ignore */ }
+      resolve(ok);
+    };
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const WebSocket = require('ws');
+      const sock = new WebSocket(`ws://localhost:${port}`);
+      ws = sock;
+      const timer = setTimeout(() => done(false), timeoutMs);
+      sock.on('open', () => {
+        sock.send(JSON.stringify({ id: 1, method: 'Tool.getInfo', params: {} }));
+      });
+      sock.on('message', (d: unknown) => {
+        clearTimeout(timer);
+        try {
+          const msg = JSON.parse(String(d));
+          done(!!(msg.result && msg.result.SDKVersion));
+        } catch {
+          done(false);
+        }
+      });
+      sock.on('error', () => { clearTimeout(timer); done(false); });
+    } catch {
+      done(false);
+    }
+  });
+}
 
 // automator 的 MiniProgram 类未从包顶层导出，用 ReturnType 派生实例类型
 export type MiniProgram = Awaited<ReturnType<typeof automator.launch>>;
@@ -41,8 +86,14 @@ export interface ConnectedSession {
 
 /**
  * 连接或启动自动化会话：
- *   - 端口已被监听（DevTools 已带 --auto-port 运行）→ automator.connect
- *   - 否则 → automator.launch 新起 DevTools
+ *   - 端口通且协议就绪（Tool.getInfo 有 SDKVersion）→ automator.connect
+ *   - 否则 automator.launch 新起 DevTools，直接使用返回的会话
+ * 冷启动竞态兜底（2026-08-21 实测，IDE 2.02 + 冷启动 >30s）：
+ *   a) launch 的 checkVersion 在 IDE 未就绪时对 undefined 调 split 崩 → 捕获后
+ *      以协议级探测轮询就绪（≤120s）再 connect；
+ *   b) 对刚 launch 成功的会话切忌 close() 后重连——会把自动化服务打进
+ *      「端口在、连接即断」的坏态；closeSession 只在每个测试文件的 afterAll 调。
+ * 会话建立后做一次 evaluate 探活，失败视为半初始化 → quit + 冷却后整轮重来（≤3 次）。
  * 用法：
  *   const session = await connectOrLaunch();
  *   afterAll(() => closeSession(session));
@@ -57,18 +108,64 @@ export async function connectOrLaunch(): Promise<ConnectedSession> {
         '  3. 检查 tests/e2e.config.ts 中的 cliPath 是否正确\n'
     );
   }
-  if (await isPortOpen(config.port)) {
-    const miniProgram = await automator.connect({
-      wsEndpoint: `ws://localhost:${config.port}`,
-    });
-    return { miniProgram };
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      let miniProgram;
+      if (await isPortOpen(config.port)) {
+        // IDE 已在运行：协议级就绪才 connect（未就绪多半是上个会话残留，quit 后重来）
+        if (await probeIdeReady(config.port)) {
+          miniProgram = await automator.connect({ wsEndpoint: `ws://localhost:${config.port}` });
+        }
+      }
+      if (!miniProgram) {
+        // 冷启动：launch 成功则直接使用该会话（切忌 close 后重连——实测会把自动化服务
+        // 打进「端口在、连接即断」的坏态）；launch 撞上冷启动竞态（checkVersion 对
+        // undefined 调 split 崩）则等协议就绪再 connect
+        try {
+          miniProgram = await automator.launch({
+            cliPath: config.cliPath,
+            projectPath: config.projectPath,
+            port: config.port,
+          });
+        } catch (launchErr) {
+          console.warn(`[connectOrLaunch] launch 失败（${String(launchErr).slice(0, 80)}），等待就绪后 connect`);
+          const ready = await new Promise<boolean>((resolve) => {
+            const deadline = Date.now() + 120000;
+            const tick = async () => {
+              if (await probeIdeReady(config.port)) return resolve(true);
+              if (Date.now() > deadline) return resolve(false);
+              setTimeout(tick, 3000);
+            };
+            tick();
+          });
+          if (!ready) throw new Error('IDE 协议就绪探测超时（Tool.getInfo 无 SDKVersion）');
+          miniProgram = await automator.connect({ wsEndpoint: `ws://localhost:${config.port}` });
+        }
+      }
+      // 探活：只验证协议响应（evaluate 算术），不赌页面栈——冷启动时 getCurrentPages()
+      // 可能为空，用路由做判据会把健康会话误杀。半初始化会话在 evaluate 上挂/超时。
+      const pong = await Promise.race([
+        miniProgram.evaluate(() => 1 + 1),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('probe evaluate 超时')), 10000)
+        ),
+      ]);
+      if (pong !== 2) throw new Error('probe 响应异常: ' + String(pong));
+      return { miniProgram };
+    } catch (e) {
+      lastErr = e;
+      console.warn(`[connectOrLaunch] 第 ${attempt} 次会话不可用，重试：${String(e).slice(0, 120)}`);
+      // 清理残留：IDE 整体退出，下次循环走干净 launch
+      try {
+        await execFileAsync(config.cliPath, ['quit']);
+      } catch {
+        /* quit 失败不阻断重试 */
+      }
+      await new Promise((r) => setTimeout(r, 3000));
+    }
   }
-  const miniProgram = await automator.launch({
-    cliPath: config.cliPath,
-    projectPath: config.projectPath,
-    port: config.port,
-  });
-  return { miniProgram };
+  throw new Error('connectOrLaunch 三次重试均失败：' + String(lastErr));
 }
 
 /**

@@ -56,8 +56,9 @@ describe('just4love E2E', () => {
     await mp.switchTab('/pages/mine/mine');
     expect(await currentRoute(mp)).toContain('mine');
 
-    // P1 后菜单扩为六项；无云环境时登录态兜底为 null（页面显示「点击登录」）
-    expect(await countSelector(mp, '.mine__menu')).toBe(6);
+    // P1 六项 + P4 新增「我的认证/加入交友群」两项（normal 角色共八项；管理后台仅 admin 出现）；
+    // 无云环境时登录态兜底为 null（页面显示「点击登录」）
+    expect(await countSelector(mp, '.mine__menu')).toBe(8);
     const user = await pageData<{ guestNo: string } | null>(mp, 'user');
     expect(user === null || typeof user.guestNo === 'string').toBe(true);
   }, T);
