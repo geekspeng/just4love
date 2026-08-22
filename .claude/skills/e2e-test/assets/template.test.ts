@@ -5,8 +5,7 @@
  * 运行：npm run test:e2e
  */
 import {
-  connectOrLaunch,
-  closeSession,
+  getSharedSession,
   currentRoute,
   pageData,
   countSelector,
@@ -21,11 +20,11 @@ describe('<功能名> E2E', () => {
   let mp: MiniProgram;
 
   beforeAll(async () => {
-    session = await connectOrLaunch();
+    session = await getSharedSession();
     mp = session.miniProgram;
   }, 120000);
 
-  afterAll(() => closeSession(session));
+  // 不要在此 close 会话：全程共享（getSharedSession），teardown 统一一次关闭/退出
 
   // ---- 按需选用以下用例模式，删掉用不到的 ----
 

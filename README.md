@@ -84,6 +84,8 @@ E2E 需要驱动微信开发者工具，**无法在 CI / 无头环境执行**（
 npm run test:e2e
 ```
 
+> macOS 下脚本经 `caffeinate -i` 包装以防长跑（约 1–2 小时）中途休眠打断 IDE 自动化通道；非 macOS 请去掉该前缀直接跑 jest。全程共享一个自动化会话（首个套件建立、`globalTeardown` 统一关闭并退出 DevTools）。
+
 ## P1 部署与验收（登录与个人资料）
 
 ### 首次部署步骤

@@ -27,7 +27,7 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
 ## 生成步骤
 
 1. **读基础设施**（勿重复造轮子）：
-   - `tests/e2e/helpers.ts` — `connectOrLaunch` / `closeSession` / 断言原语（`currentRoute` / `pageData` / `countSelector` / `runInApp`）/ `navTo`（页面跳转）/ `TEST_TIMEOUT`
+   - `tests/e2e/helpers.ts` — `getSharedSession`（全程共享会话）/ 断言原语（`currentRoute` / `pageData` / `countSelector` / `runInApp`）/ `navTo`（页面跳转）/ `TEST_TIMEOUT`
    - `tests/e2e/app-globals.d.ts` — `getCurrentPages`/`wx` 类型声明（自动生效）
    - `tests/e2e/app.test.ts` — 结构范例
 
@@ -36,7 +36,7 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
 3. **文件骨架**（从 `assets/template.test.ts` 复制后填充）：
    ```ts
    import {
-     connectOrLaunch, closeSession, currentRoute, pageData,
+     getSharedSession, currentRoute, pageData,
      countSelector, runInApp, TEST_TIMEOUT as T,
      MiniProgram, ConnectedSession,
    } from './helpers';
@@ -46,11 +46,11 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
      let mp: MiniProgram;
 
      beforeAll(async () => {
-       session = await connectOrLaunch();
+       session = await getSharedSession();
        mp = session.miniProgram;
      }, 120000);
 
-     afterAll(() => closeSession(session));
+     // 注意：不要加 afterAll 关闭会话——全程共享，teardown 统一收口（一次建立/一次关闭）
 
      it('...', async () => { /* ... */ }, T);
    });
@@ -75,7 +75,7 @@ description: 为 just4love 微信小程序的新功能生成 E2E 测试代码。
 - TypeScript 锁定 5.9.x：ts-jest 不支持 TS 7（会报 "does not expose the JavaScript compiler API"）
 - 评估回调里只能返回**可序列化**值；返回页面对象等会得到 `TypeError: received is not iterable`
 - `npm test`（unit+integration）不含 e2e；e2e 需 DevTools，独立跑 `npm run test:e2e`
-- 测试跑完会自动退出微信开发者工具：per-file 的 `closeSession` 只关自动化会话（`miniProgram.close()` 不杀 IDE 进程），整套结束由 jest globalTeardown（`tests/e2e/teardown.js` 调 `cli quit`）统一退出。**勿把 quit 挪进测试文件的 afterAll**——下一个文件的 launch 会撞上正在退出的 IDE 挂死（实测）
+- 会话全程共享：各文件 beforeAll 用 `getSharedSession()`（首个文件建立、后续复用，失活自动重建）；**勿在测试文件里 close 会话或 quit IDE**——close→重连实测会把自动化服务打进「端口在、连接即断」坏态，quit 会使下个文件 launch 撞上正在退出的 IDE。关闭会话与退出 IDE 都由 jest globalTeardown（`teardown.js`）统一做一次
 - 复用 IDE 时（探针/上轮测试 disconnect 后未 quit），tabBar 页实例跨会话存活，页面 data 带旧值——依赖「data 从 null 变有值」做等待会立即误通过。需要全新状态时先 `navTo`（reLaunch）重建页面实例
 - 排障云函数：IDE 内报 `Uncaught [object Object]` 先用 App 级 evaluate 直调 `wx.cloud.callFunction` 拿真实 result（云函数 catch 兜底返回 `{error:'internal error'}` 多为集合缺失——`cloudfunctions/setupDb` 幂等建 users/counters/profiles，已部署，调一次即可）
 
