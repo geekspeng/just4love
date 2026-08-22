@@ -95,6 +95,27 @@
 - R2 用户手动开着 DevTools 调试时跑 e2e：行为与现状一致（被接管，结束时被 quit）。
 - R3 休眠：caffeinate 缓解；若仍发生（强制合盖），下个套件探活重建兜底。
 
+## 实施中发现并修复的协议级根因（2026-08-22 双套件实测）
+
+IDE 2.02.2608040 的自动化端点 `Tool.getInfo` 返回 `{version:"2.02.x"}` 而非旧版的
+`{SDKVersion}`：miniprogram-automator@0.12.1 的 `checkVersion` 对 `undefined` 调
+`split` 崩（**connect 与 launch 均撞此**，此前「connect 不做 checkVersion」的假设不成立），
+`probeIdeReady` 也因找不到 `SDKVersion` 恒失败——这正是 8/22 全天「端口在听但握手全挂」的
+直接原因（叠加前晚的未登录态）。修复：helpers 模块加载时把
+`MiniProgram.prototype.checkVersion` 原型级置空（该检查只是「运行时 SDK≥2.7.3」的客户端
+守卫，本机恒满足），`probeIdeReady` 兼容 `SDKVersion || version`。
+独立探针验证：补丁前 `CONNECT_FAIL: TypeError ... split`，补丁后 `evaluate(1+1)===2`。
+
+## 验证结论（Task 4 红绿门）
+
+- 热路径：app+message 双套件 9/9 全绿，总耗时 16.3s；结束后 9420 关闭、无残留连接、无
+  僵尸告警（改造前同环境 120s hook 超时全灭）。
+- 冷路径（IDE 被 teardown 关闭后重跑）：9/9 全绿；app 22.2s（launch+建立+6 用例）、
+  message 3.4s（纯复用+3 用例）——单套件若另建连接仅握手即需 3–5s，3.4s 只可能是
+  stash 复用，R1（跨 jest 沙箱共享会话）实测成立。
+- 生命周期 console 日志（新建/复用）在本机 jest 管道输出中被吞（与 PASS 行丢失同象），
+  以计时证据替代；全量跑在 TTY 下可直接观察。
+
 ## 携带的既有未提交改动
 
 主工作区有两处上个会话的未提交改动，为本设计的基础，随本分支一起提交：

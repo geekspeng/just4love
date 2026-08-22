@@ -15,6 +15,16 @@ import { execFile } from 'child_process';
 import automator from 'miniprogram-automator';
 import config from '../e2e.config';
 
+// 兼容补丁（2026-08-22 实测）：IDE 2.02.2608040 的自动化端点 Tool.getInfo 返回
+// {version:"2.02.x"} 而非 {SDKVersion}，automator 的 checkVersion 对 undefined 调
+// split 崩（connect/launch 均撞此，报 "Cannot read properties of undefined (reading 'split')"）。
+// 该检查只是「运行时 SDK≥2.7.3」的客户端守卫，本机恒满足 → 原型级置空绕过。
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const MiniProgramModule = require('miniprogram-automator/out/MiniProgram');
+MiniProgramModule.default.prototype.checkVersion = async function patchedCheckVersion() {
+  /* 绕过：见上注释 */
+};
+
 // 子进程执行（重试清理里 quit IDE 用）
 const execFileAsync = (cmd: string, args: string[]) =>
   new Promise<void>((resolve, reject) => {
@@ -47,7 +57,8 @@ function probeIdeReady(port: number, timeoutMs = 6000): Promise<boolean> {
         clearTimeout(timer);
         try {
           const msg = JSON.parse(String(d));
-          done(!!(msg.result && msg.result.SDKVersion));
+          // IDE 2.02 起 getInfo 返回 {version}（旧版为 {SDKVersion}），两者都算就绪
+          done(!!(msg.result && (msg.result.SDKVersion || msg.result.version)));
         } catch {
           done(false);
         }
